@@ -1,0 +1,14 @@
+﻿How to add new plants
+
+Adding plants is actually quite simple, a two step process.  
+
+First, you'll need to create the plant class itself along with any classes it needs.  
+See CommandSurvivalAdventure.World.Plants.PlantExamplePlant for an example piece of code for creating your own plant.
+If your plant needs branches or some other plant part that will be it's own seperate object, check out hte PlantParts namespace inside of World.Plants.
+Simply follow the example of the rest of the plants by creating a new namespace specifically for that plant, and putting any plant parts inside this new namespace.
+
+Second, you'll need to go into the code of each biome that you want this new plant to be generated in and have it get generated.
+For example, if you wanted to make your new plant get generated in the forest, you would go into World.Biomes.Forest, in the generate function, add a new piece of code that would attach a random amount of your new plant to the chunk.
+
+
+You should be good to go!  Have fun with your new plant!
