@@ -1,0 +1,31 @@
+﻿This document describes how each class will work and how each one will interact with.
+Most things here will obviously be subject to change, but this way, I can at least get my thoughts out to start modifying them.
+
+First thing's first, the program is divided up into layers.  Core, Processing, I/O, and Support.
+Each layer is comprised of several microservices, which are simply self contained classes that provide a certain service to the overall program.
+For example, there is a Network Manager microservice, in the Support layer, that provides networking functionality to the program.
+With that aside, we can get into the details of each layer and microservice.
+
+Core Layer:
+	World:	This serializable class encapsulates all the data pertaining to a single world.
+			The most important members of this class are the dictionary of properties, and the 3D list of chunks.
+			Each chunk also has it's own dictionary of properties, as well as a list of all the GameObjects on the chunk.
+			This class contains functionality to proceduarly generate itself based on a WorldGenerationData instance.
+
+	Creature:	This serializable class encapsulates all data pertaining to a living creature.  
+				Since this is something of a fantasy world, I imagine the line will become blurred between a plant and animal.
+				In general, creatures are fairly mobile, have the breath of life, and react fairly quickly to their surroundings.
+				I'm not quite sure yet, but the members of this class will include things like HP, speed, isBleeding, etc.
+				Also, there will be a list of child objects that are components of this creature, such as arm, leg, head, torso, etc.
+				This will make it easier to have creature parts be interacted with, cut off, eaten, etc.
+
+	Plant:	This serliaziable class is encapsulates all data pertaining to a living plant.
+			Refer to Creature for a definition of a creature versus a plant.
+			This class, like the creature, will have a list of children objects, such as the trunk, various branches, etc.
+			Plants will have all sorts of resiliance and hardness properties.
+			Since their primary use is to build and craft with, they will have things like hardness, water resiliance, weight, etc.
+	
+	Mineral:	This serializable class encapsulates all data pertaining to anything non-living in the world, primarily different kinds of rocks and liquids.
+				A mineral object can be be comprised of several other minerals attached together, such as a stone with gems sticking out.
+				Like the creature and plant, this class will also have a list of children objects attached to this one.
+				
