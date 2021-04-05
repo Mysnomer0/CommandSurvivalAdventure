@@ -1,3 +1,0 @@
-﻿Speed, intelligence, agility, Weight, Stamana, Health, IsSick, 
-
-IsBleeding, Health, Weight, IsUnclean, IsCooked, MuscleContent, FatContent

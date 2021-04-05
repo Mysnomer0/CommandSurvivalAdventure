@@ -1,1 +1,0 @@
-﻿hardness, density, transparency, radioactiveLevel, lightEmitingLevel, meltingPoint
