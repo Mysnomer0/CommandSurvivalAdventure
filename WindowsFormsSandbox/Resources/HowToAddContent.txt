@@ -1,4 +1,0 @@
-﻿
-// How to add a plant
-1.	Add the desired plant inside of the plant folder, use code from cattail and modify.
-2.  If the plant has a PlantPart, and a folder under PlantParts and add the part to that folder copying from one of the other

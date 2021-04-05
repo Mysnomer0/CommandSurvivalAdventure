@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27703.2035
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CommandSurvivalAdventure", "CommandSurvivalAdventure\CommandSurvivalAdventure.csproj", "{BC02B2B3-5E1C-43DA-B1F4-8170C709E0BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC02B2B3-5E1C-43DA-B1F4-8170C709E0BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC02B2B3-5E1C-43DA-B1F4-8170C709E0BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC02B2B3-5E1C-43DA-B1F4-8170C709E0BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC02B2B3-5E1C-43DA-B1F4-8170C709E0BA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B3BFE318-370B-4CBC-9113-54AF70F2B0CE}
+	EndGlobalSection
+EndGlobal
