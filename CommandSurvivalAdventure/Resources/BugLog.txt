@@ -1,0 +1,8 @@
+Check server output for the attach command
+
+Fix piece of bug and salt chunk bug
+
+Blocking does not work when using hands
+
+When two people enter a chunk at the same time, the following error occurs in World line 148: System.ArgumentException: 'An item with the same key has already been added. Key: 60'
+Looks like a race condition where it tried to generate the chunk once, than again when the other person joined the chunk.
