@@ -36,13 +36,13 @@ namespace CommandSurvivalAdventure.World.Minerals
             lightEmitingLevel = 0;
             meltingPoint = 1760;
 
-            identifier.name = "silt";
+            identifier.name = "chunk";
 
             // Make it eather large or small
             int chance = random.Next(0, 2);
-
-            identifier.classifierAdjectives.Add("piece");
-            identifier.classifierAdjectives.Add("of");
+            identifier.classifierAdjectives.Add("silt");
+            //identifier.classifierAdjectives.Add("piece");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }

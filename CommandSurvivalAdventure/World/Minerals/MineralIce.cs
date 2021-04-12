@@ -33,7 +33,7 @@ namespace CommandSurvivalAdventure.World.Minerals
             lightEmitingLevel = 0;
             meltingPoint = 33;
 
-            identifier.name = "ice";
+            identifier.name = "slab";
 
             // Make it eather large or small
             int chance = random.Next(0, 2);
@@ -43,8 +43,9 @@ namespace CommandSurvivalAdventure.World.Minerals
             else if (chance == 1)
                 identifier.descriptiveAdjectives.Add("small");
 
-            identifier.classifierAdjectives.Add("piece");
-            identifier.classifierAdjectives.Add("of");
+            identifier.classifierAdjectives.Add("ice");
+            //identifier.classifierAdjectives.Add("piece");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }

@@ -35,13 +35,14 @@ namespace CommandSurvivalAdventure.World.Minerals
             lightEmitingLevel = 0;
             meltingPoint = 3000;
 
-            identifier.name = "earth";
+            identifier.name = "clump";
 
             // Make it eather large or small
             int chance = random.Next(0, 2);
 
-            identifier.classifierAdjectives.Add("clump");
-            identifier.classifierAdjectives.Add("of");
+            identifier.classifierAdjectives.Add("earth");
+            //identifier.classifierAdjectives.Add("clump");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }

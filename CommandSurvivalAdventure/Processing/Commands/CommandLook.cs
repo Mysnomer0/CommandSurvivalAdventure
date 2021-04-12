@@ -16,8 +16,19 @@ namespace CommandSurvivalAdventure.Processing.Commands
                 attachedApplication.output.PrintLine("$maNot $maconnected $mato $maany $maserver. $maMake $masure $mayour $maclient $mais $maconnected.");
                 return;
             }
+            // Check args
+            if (arguments.Count == 1)
+            {
+                attachedApplication.output.PrintLine("$maUsage look at $ma<typeOfObjectToLookFor>");
+                return;
+            }
             // Create a new server command
             Support.Networking.ServerCommands.ServerCommandLook serverCommand = new Support.Networking.ServerCommands.ServerCommandLook(attachedApplication.client.clientID);
+            if(arguments.Count > 0)
+            {
+                serverCommand.arguments.Add(arguments[0]);
+                serverCommand.arguments.Add(arguments[1]);
+            }           
             // Send a look request to the server
             attachedApplication.client.SendServerCommand(serverCommand);
         }

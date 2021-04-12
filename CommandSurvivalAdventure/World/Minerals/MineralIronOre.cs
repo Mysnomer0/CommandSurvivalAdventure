@@ -35,7 +35,7 @@ namespace CommandSurvivalAdventure.World.Minerals
             lightEmitingLevel = 0;
             meltingPoint = 2800;
 
-            identifier.name = "iron";
+            identifier.name = "ore";
 
             // Make it eather large or small
             int chance = random.Next(0, 3);
@@ -52,9 +52,9 @@ namespace CommandSurvivalAdventure.World.Minerals
             }
             else
                 specialProperties.Add("weight", random.Next(5, 10).ToString());
-
-            identifier.classifierAdjectives.Add("piece");
-            identifier.classifierAdjectives.Add("of");
+            identifier.classifierAdjectives.Add("iron");
+            //identifier.classifierAdjectives.Add("piece");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }

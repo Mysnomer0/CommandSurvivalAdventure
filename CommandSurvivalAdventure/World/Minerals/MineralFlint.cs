@@ -54,8 +54,9 @@ namespace CommandSurvivalAdventure.World.Minerals
             else
                 specialProperties.Add("weight", random.Next(3, 5).ToString());
 
-            identifier.classifierAdjectives.Add("piece");
-            identifier.classifierAdjectives.Add("of");
+            //identifier.descriptiveAdjectives.Add("piece of");
+            //identifier.classifierAdjectives.Add("piece");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }

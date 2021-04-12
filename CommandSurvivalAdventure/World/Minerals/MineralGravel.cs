@@ -33,7 +33,7 @@ namespace CommandSurvivalAdventure.World.Minerals
             lightEmitingLevel = 0;
             meltingPoint = 2190;
 
-            identifier.name = "gravel";
+            identifier.name = "clump";
 
             // Make it eather large or small
             int chance = random.Next(0, 2);
@@ -50,9 +50,9 @@ namespace CommandSurvivalAdventure.World.Minerals
             }
             else
                 specialProperties.Add("weight", random.Next(5, 10).ToString());
-
-            identifier.classifierAdjectives.Add("piece");
-            identifier.classifierAdjectives.Add("of");
+            identifier.classifierAdjectives.Add("gravel");
+            //identifier.classifierAdjectives.Add("piece");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }

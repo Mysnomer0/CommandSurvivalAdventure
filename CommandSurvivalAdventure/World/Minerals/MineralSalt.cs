@@ -32,7 +32,7 @@ namespace CommandSurvivalAdventure.World.Minerals
             lightEmitingLevel = 0;
             meltingPoint = 1474;
 
-            identifier.name = "salt";
+            identifier.name = "chunk";
 
             // Make it eather large or small
             int chance = random.Next(0, 2);
@@ -49,9 +49,9 @@ namespace CommandSurvivalAdventure.World.Minerals
             }
             else
                 specialProperties.Add("weight", random.Next(2, 3).ToString());
-
-            identifier.classifierAdjectives.Add("piece");
-            identifier.classifierAdjectives.Add("of");
+            identifier.classifierAdjectives.Add("salt");
+            //identifier.classifierAdjectives.Add("piece");
+            //identifier.classifierAdjectives.Add("of");
         }
     }
 }
