@@ -161,5 +161,108 @@ namespace CommandSurvivalAdventure.World
             }
             return "";
         }
+        // Converts the int into the corresponding direction
+        public static Direction IntToDirection(int direction)
+        {
+            // The new direction to return
+            Direction directionToReturn = new Direction();
+            // Based on the string, generate a direction
+
+            // North
+            if (direction == 0)
+            {
+                directionToReturn.x = 0;
+                directionToReturn.y = 0;
+                directionToReturn.z = 1;
+            }
+            // Northeast
+            else if (direction == 1)
+            {
+                directionToReturn.x = 1;
+                directionToReturn.y = 0;
+                directionToReturn.z = 1;
+            }
+            // East
+            else if (direction == 2)
+            {
+                directionToReturn.x = 1;
+                directionToReturn.y = 0;
+                directionToReturn.z = 0;
+            }
+            // Southeast
+            else if (direction == 3)
+            {
+                directionToReturn.x = 1;
+                directionToReturn.y = 0;
+                directionToReturn.z = -1;
+            }
+            // South
+            else if (direction == 4)
+            {
+                directionToReturn.x = 0;
+                directionToReturn.y = 0;
+                directionToReturn.z = -1;
+            }
+            // Southwest
+            else if (direction == 5)
+            {
+                directionToReturn.x = -1;
+                directionToReturn.y = 0;
+                directionToReturn.z = -1;
+            }
+            // West
+            else if (direction == 6)
+            {
+                directionToReturn.x = -1;
+                directionToReturn.y = 0;
+                directionToReturn.z = 0;
+            }
+            // Northwest
+            else if (direction == 7)
+            {
+                directionToReturn.x = -1;
+                directionToReturn.y = 0;
+                directionToReturn.z = 1;
+            }
+            return directionToReturn;
+        }
+        // Converts the given direction to an int
+        public static int DirectionToInt(Direction direction)
+        {
+            // Based on the direction, return the corresponding string
+            if (direction.x == 0 && direction.y == 0 && direction.z == 1)
+            {
+                return 0;
+            }
+            else if (direction.x == 1 && direction.y == 0 && direction.z == 1)
+            {
+                return 1;
+            }
+            else if (direction.x == 1 && direction.y == 0 && direction.z == 0)
+            {
+                return 2;
+            }
+            else if (direction.x == 1 && direction.y == 0 && direction.z == -1)
+            {
+                return 3;
+            }
+            else if (direction.x == 0 && direction.y == 0 && direction.z == -1)
+            {
+                return 4;
+            }
+            else if (direction.x == -1 && direction.y == 0 && direction.z == -1)
+            {
+                return 5;
+            }
+            else if (direction.x == -1 && direction.y == 0 && direction.z == 0)
+            {
+                return 6;
+            }
+            else if (direction.x == -1 && direction.y == 0 && direction.z == 1)
+            {
+                return 7;
+            }
+            return -1;
+        }
     }
 }

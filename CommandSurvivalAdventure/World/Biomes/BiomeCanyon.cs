@@ -21,6 +21,9 @@ namespace CommandSurvivalAdventure.World.Biomes
             chunkToPopulate.windSpeed = (normalWindSpeed * (random.Next(2, 8) / 5));
             chunkToPopulate.temperature = (normalTemperature * (random.Next(2, 4) / 3));
 
+            Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
+            chunkToPopulate.AddChild(newGoat);
+
             #region Add minerals
             // Decide whether to generate boulder
             if (random.Next(1, 2) == 1)

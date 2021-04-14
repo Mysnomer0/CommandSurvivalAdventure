@@ -21,6 +21,10 @@ namespace CommandSurvivalAdventure.World.Biomes
             chunkToPopulate.windSpeed = (normalWindSpeed * (random.Next(2, 8) / 5));
             chunkToPopulate.temperature = (normalTemperature * (random.Next(2, 4) / 3));
 
+            // TODO: Make creature generation more dynamic
+            Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
+            chunkToPopulate.AddChild(newGoat);
+
             #region Add plants
             // the amont of Tall Fescues
             int amontOfTallFescues = random.Next(100, 200);

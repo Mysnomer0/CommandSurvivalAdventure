@@ -29,7 +29,6 @@ namespace CommandSurvivalAdventure.World.Biomes
             {
                 // Create a new piece of Earth
                 Minerals.MineralEarth newEarth = new Minerals.MineralEarth();
-                newEarth.identifier.name = "earth";
                 chunkToPopulate.AddChild(newEarth);
             }
 
@@ -69,19 +68,18 @@ namespace CommandSurvivalAdventure.World.Biomes
             }
 
             // Decide whether to generate ferns
-            if (random.Next(1, 3) == 1)
-            {
-                // the amont of ferns
-                int amontOfFerns = random.Next(12, 24);
 
-                for (int i = 0; i < amontOfFerns; i++)
-                {
-                    // Create a new fern
-                    Plants.PlantFern newFern = new Plants.PlantFern();
-                    newFern.identifier.name = "fern";
-                    chunkToPopulate.AddChild(newFern);
-                }
+            // the amont of ferns
+            int amontOfFerns = random.Next(12, 24);
+
+            for (int i = 0; i < amontOfFerns; i++)
+            {
+                // Create a new fern
+                Plants.PlantFern newFern = new Plants.PlantFern();
+                newFern.identifier.name = "fern";
+                chunkToPopulate.AddChild(newFern);
             }
+            
             // the amont of Tall Fescues
             int amontOfTallFescues = random.Next(100, 200);
 
@@ -109,6 +107,8 @@ namespace CommandSurvivalAdventure.World.Biomes
                     newOakBranch.identifier.descriptiveAdjectives.Add("short");
                 else
                     newOakBranch.identifier.descriptiveAdjectives.Add("long");
+
+                newOakBranch.identifier.descriptiveAdjectives.Add("fallen");
 
                 newOakBranch.identifier.classifierAdjectives.Add("oak");
                 chunkToPopulate.AddChild(newOakBranch);

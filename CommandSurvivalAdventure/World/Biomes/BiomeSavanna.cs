@@ -92,8 +92,6 @@ namespace CommandSurvivalAdventure.World.Biomes
                 {
                     // Create a new piece of copper
                     Minerals.MineralCopper newCopper = new Minerals.MineralCopper();
-                    newCopper.identifier.name = "piece";
-                    newCopper.identifier.classifierAdjectives.Add("copper");
                     chunkToPopulate.AddChild(newCopper);
                 }
             }
@@ -122,8 +120,6 @@ namespace CommandSurvivalAdventure.World.Biomes
                 {
                     // Create a new piece of salt
                     Minerals.MineralSalt newSalt = new Minerals.MineralSalt();
-                    newSalt.identifier.name = "chunk";
-                    newSalt.identifier.classifierAdjectives.Add("salt");
                     chunkToPopulate.AddChild(newSalt);
                 }
             }

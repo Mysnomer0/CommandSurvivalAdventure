@@ -46,7 +46,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // Get the object to drop
             gameObjectToDrop = utilizablePart.children.First();
             // Add the object to the chunk
-            server.world.GetChunk(sender.position).AddChild(gameObjectToDrop);
+            server.world.GetChunkOrGenerate(sender.position).AddChild(gameObjectToDrop);
             // Remove it from the utilizable part
             utilizablePart.RemoveChild(gameObjectToDrop);
             // Confirm to the sender that they dropped the object

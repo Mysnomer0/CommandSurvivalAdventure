@@ -101,7 +101,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             }
 
             // Attach it to our chunk
-            server.world.GetChunk(sender.position).AddChild(objectToOutput);
+            server.world.GetChunkOrGenerate(sender.position).AddChild(objectToOutput);
             #endregion
 
             #region Confirm that the object was crafted with a message

@@ -38,7 +38,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 // Change the stance of the sender
                 sender.specialProperties["stance"] = World.Creature.StanceToString(World.Creature.Stances.LAYING);
                 // Notify everyone in the chunk
-                foreach (World.GameObject gameObject in server.world.GetChunk(sender.position).children)
+                foreach (World.GameObject gameObject in server.world.GetChunkOrGenerate(sender.position).children)
                 {
                     if (gameObject.specialProperties.ContainsKey("isPlayer") && gameObject.identifier.name != sender.identifier.name)
                     {

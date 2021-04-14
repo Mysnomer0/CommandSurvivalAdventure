@@ -75,7 +75,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             #region Find the object, pick it up, and send appripriate messages to the sender and everyone else in the chunk
 
             // Find possible gameObjects to pick up
-            List<World.GameObject> gameObjectToPickUp = server.world.GetChunk(sender.position).FindChildrenWithName(givenArguments[0]);
+            List<World.GameObject> gameObjectToPickUp = server.world.GetChunkOrGenerate(sender.position).FindChildrenWithName(givenArguments[0]);
             // If no gameObject was found, send back an error
             if(gameObjectToPickUp.Count == 0)
             {
@@ -91,7 +91,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 // Put the object in the players utilizable part, usually a hand
                 utilizablePart.AddChild(gameObjectToPickUp.First());
                 // Remove it from the chunk
-                server.world.GetChunk(sender.position).RemoveChild(gameObjectToPickUp.First());
+                server.world.GetChunkOrGenerate(sender.position).RemoveChild(gameObjectToPickUp.First());
                 // Confirm to the sender that they picked up the object
                 RPCs.RPCSay confirmation = new RPCs.RPCSay();
                 confirmation.arguments.Add("You picked up " + Processing.Describer.GetArticle(gameObjectToPickUp.First().identifier.fullName) + " " + gameObjectToPickUp.First().identifier.fullName + " in your " + utilizablePart.identifier.fullName + ".");

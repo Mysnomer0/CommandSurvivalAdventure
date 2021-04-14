@@ -54,6 +54,8 @@ namespace CommandSurvivalAdventure.World
             // Add the new child locally
             children.Add(newChild);
             newChild.parent = this;
+            // Give the child our position
+            newChild.ChangePosition(position);
         }
         // Removes a child; Use instead of children.Remove
         public virtual void RemoveChild(GameObject childToRemove)

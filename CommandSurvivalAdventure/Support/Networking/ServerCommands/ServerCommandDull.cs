@@ -43,7 +43,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             }
 
             // Tell the player in the present tense that they are completing the action
-            string presentTenseConfirmationString = "You are Dulling " + Processing.Describer.GetArticle(objectToDull.identifier.fullName) + " " + objectToDull.identifier.fullName + "...";
+            string presentTenseConfirmationString = "You are dulling " + Processing.Describer.GetArticle(objectToDull.identifier.fullName) + " " + objectToDull.identifier.fullName + "...";
             RPCs.RPCSay presentTenseConfirmation = new RPCs.RPCSay();
             presentTenseConfirmation.arguments.Add(presentTenseConfirmationString);
             server.SendRPC(presentTenseConfirmation, nameOfSender);

@@ -13,6 +13,10 @@ namespace CommandSurvivalAdventure.World
         public int seed;
         // The water level of the world
         public float waterLevel;
+        // The world width and length
+        public int worldSize = 10;
+        // The render distance
+        public int renderDistance = 5;
         // The list of players on this world
         public Dictionary<string, Core.Player> players = new Dictionary<string, Core.Player>();
         // The 3D dictionary storing all the chunks on the world
@@ -22,14 +26,15 @@ namespace CommandSurvivalAdventure.World
         // The ID manager for the world gameObjects
         public IDManager iDManager = new IDManager();
         // Initializes the world
-        public World(int newSeed)
+        public World(Application newApplication, int newSeed)
         {
+            attachedApplication = newApplication;
             // Add the properties to the world
             identifier.name = "world";
             seed = newSeed;
             waterLevel = new Random(newSeed).Next(60);
             // Generate the initial chunk
-            Chunk chunk = new Chunk();
+            Chunk chunk = new Chunk(attachedApplication);
             AddChild(chunk);
             chunk.Generate(0, 0, 0, seed, this);
             // Initialize the chunks
@@ -40,9 +45,9 @@ namespace CommandSurvivalAdventure.World
 
             // Render around the new position
             // TODO: Render on the y axis as well, underground stuff
-            for (int x = -20; x < 20; x++)
+            for (int x = -worldSize / 2; x < worldSize / 2; x++)
             {
-                for (int z = -20; z < 20; z++)
+                for (int z = -worldSize / 2; z < worldSize / 2; z++)
                 {
                     // If a chunk doesn't exist at the new position, generate one.  
                     GenerateChunkIfNecessary(new Position(x, 0, z));
@@ -54,38 +59,34 @@ namespace CommandSurvivalAdventure.World
         // Starts the world
         public override void Start()
         {
-            /*
             // Start all chunks
-            for (int x = 0; x < chunks.Count; x++)
+            for (int x = -worldSize / 2; x < worldSize / 2; x++)
             {
-                for (int y = 0; y < chunks[x].Count; y++)
+                for (int z = -worldSize / 2; z < worldSize / 2; z++)
                 {
-                    for (int z = 0; z < chunks[x][y].Count; z++)
-                    {
-                        chunks[x][y][z].Start();
-                    }
+                    chunks[x][0][z].Start();
+                    //chunks[x][y][z].Start();
+                    
                 }
             }
             // Start the update cycle
-            //Update();*/
+            Update();
         }
         // Updates the world
         public override void Update()
-        {/*
+        {
             // Update all chunks
-            for(int x = 0; x < chunks.Count; x++)
+            for (int x = -worldSize / 2; x < worldSize / 2; x++)
             {
-                for (int y = 0; y < chunks[x].Count; y++)
+                for (int z = -worldSize / 2; z < worldSize / 2; z++)
                 {
-                    for (int z = 0; z < chunks[x][y].Count; z++)
-                    {
-                        chunks[x][y][z].Update();
-                    }
+                    //chunks[x][y][z].Update();
+                    chunks[x][0][z].Update();                   
                 }
             }
             // Wait a bit, then continue the update cycle
             Thread.Sleep(1000);
-            Update();*/
+            Update();
         }
         // Adds a new gameObject to the world, gives it an ID, and adds it to the gameObject dictionary for easy reference
         public override void AddChild(GameObject newChild)
@@ -116,52 +117,60 @@ namespace CommandSurvivalAdventure.World
         public void GenerateChunkIfNecessary(Position position)
         {
             // If a chunk doesn't exist at the new position, generate one.  This is NOT the cleanest way to do it, but I just needed a quick work around
-            while (true)
+            if (!chunks.ContainsKey(position.x))
             {
-                if (!chunks.ContainsKey(position.x))
-                {
-                    chunks.Add(position.x, new Dictionary<int, Dictionary<int, Chunk>>());
-                    chunks[position.x].Add(position.y, new Dictionary<int, Chunk>());
-                    // Create a new chunk and add it as a child
-                    Chunk chunk = new Chunk();
-                    AddChild(chunk);
-                    chunk.Generate(position.x, position.y, position.z, seed, this);
-                    chunks[position.x][position.y].Add(position.z, chunk);
-                    break;
-                }
-                if (!chunks[position.x].ContainsKey(position.y))
-                {
-                    chunks[position.x].Add(position.y, new Dictionary<int, Chunk>());
-                    // Create a new chunk and add it as a child
-                    Chunk chunk = new Chunk();
-                    AddChild(chunk);
-                    chunk.Generate(position.x, position.y, position.z, seed, this);
-                    chunks[position.x][position.y].Add(position.z, chunk);
-                    break;
-                }
-                if (!chunks[position.x][position.y].ContainsKey(position.z))
-                {
-                    // Create a new chunk and add it as a child
-                    Chunk chunk = new Chunk();
-                    AddChild(chunk);
-                    chunk.Generate(position.x, position.y, position.z, seed, this);
-                    chunks[position.x][position.y].Add(position.z, chunk);
-                    break;
-                }
-                break;
+                chunks.Add(position.x, new Dictionary<int, Dictionary<int, Chunk>>());
+                chunks[position.x].Add(position.y, new Dictionary<int, Chunk>());
+                // Create a new chunk and add it as a child
+                Chunk chunk = new Chunk(attachedApplication);
+                AddChild(chunk);
+                chunk.Generate(position.x, position.y, position.z, seed, this);
+                chunks[position.x][position.y].Add(position.z, chunk);
+            }
+            else if (!chunks[position.x].ContainsKey(position.y))
+            {
+                chunks[position.x].Add(position.y, new Dictionary<int, Chunk>());
+                // Create a new chunk and add it as a child
+                Chunk chunk = new Chunk(attachedApplication);
+                AddChild(chunk);
+                chunk.Generate(position.x, position.y, position.z, seed, this);
+                chunks[position.x][position.y].Add(position.z, chunk);
+            }
+            else if (!chunks[position.x][position.y].ContainsKey(position.z))
+            {
+                // Create a new chunk and add it as a child
+                Chunk chunk = new Chunk(attachedApplication);
+                AddChild(chunk);
+                chunk.Generate(position.x, position.y, position.z, seed, this);
+                chunks[position.x][position.y].Add(position.z, chunk);
             }
         }
         // Gets the chunk at the given position, and if it doesn't exist, it generates one
-        public Chunk GetChunk(Position position)
+        public Chunk GetChunkOrGenerate(Position position)
         {
             // Generate the chunk if necessary
             GenerateChunkIfNecessary(position);
             return chunks[position.x][position.y][position.z];
         }
+        // Gets the chunk at the given position, and if it doesn't exist, it returns null
+        public Chunk GetChunk(Position position)
+        {
+            if (chunks.ContainsKey(position.x))
+            {
+                if (chunks[position.x].ContainsKey(position.y))
+                {
+                    if (chunks[position.x][position.y].ContainsKey(position.z))
+                    {
+                        return chunks[position.x][position.y][position.z];
+                    }
+                }
+            }
+            return null;
+        }
         // Adds the given object to the chunk at the given position
         public void AddToChunk(GameObject gameObject, Position position)
         {
-            GetChunk(position).AddChild(gameObject);
+            GetChunkOrGenerate(position).AddChild(gameObject);
         }
         // Removes the given object from the chunk at the given position
         public void RemoveFromChunk(int IDOfGameObject, Position position)
@@ -186,22 +195,22 @@ namespace CommandSurvivalAdventure.World
             // Add them to the list of players
             players.Add(nameOfPlayer, player);
             // Add them to the corresponding chunk
-            GetChunk(newPosition).AddChild(newPlayer);
+            GetChunkOrGenerate(newPosition).AddChild(newPlayer);
         }
         // Moves the given player to the new position
         public void MovePlayer(string nameOfPlayer, Position newPosition)
         {
             // Move the object
-            MoveObject(players[nameOfPlayer].controlledGameObject.ID, newPosition);
+            MoveObjectAndRenderAroundNewPosition(players[nameOfPlayer].controlledGameObject.ID, newPosition);
         }
         // Moves the given object to the new position
-        public void MoveObject(int IDOfObject, Position newPosition)
+        public void MoveObjectAndRenderAroundNewPosition(int IDOfObject, Position newPosition)
         {
             // Render around the new position
             // TODO: Render on the y axis as well, underground stuff
-            for(int x = newPosition.x - 20; x < newPosition.x + 20; x++)
+            for(int x = newPosition.x - renderDistance; x < newPosition.x + renderDistance; x++)
             {
-                for (int z = newPosition.z - 20; z < newPosition.z + 20; z++)
+                for (int z = newPosition.z - renderDistance; z < newPosition.z + renderDistance; z++)
                 {
                     // If a chunk doesn't exist at the new position, generate one.  
                     GenerateChunkIfNecessary(new Position(x, 0 , z));
@@ -214,6 +223,19 @@ namespace CommandSurvivalAdventure.World
             // Set it's position to the new position
             GetGameObject(IDOfObject).ChangePosition(newPosition);
         }
+        public void MoveObject(int IDOfObject, Position newPosition)
+        {
+            // If a chunk exists at the new position
+            if(GetChunk(newPosition) != null)
+            {
+                // Add the gameObject to the new chunk
+                AddToChunk(GetGameObject(IDOfObject), newPosition);
+                // Remove it from the old one
+                RemoveFromChunk(IDOfObject, GetGameObject(IDOfObject).position);
+                // Set it's position to the new position
+                GetGameObject(IDOfObject).ChangePosition(newPosition);
+            }
+        }           
         // Gets the object with the specified ID and specified position
         public GameObject GetGameObject(int ID)
         {
@@ -225,7 +247,7 @@ namespace CommandSurvivalAdventure.World
         // Finds and returns a list of gameObjects that have the name specified
         public List<GameObject> FindGameObjects(string name, Position position)
         {
-            return GetChunk(position).FindChildrenWithName(name);
+            return GetChunkOrGenerate(position).FindChildrenWithName(name);
         }
         // Finds and returns the first gameObject found with the name specified
         public GameObject FindFirstGameObject(string name, Position position)

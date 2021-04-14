@@ -44,7 +44,7 @@ namespace CommandSurvivalAdventure.Support.Networking
             {
                 // Generate a new world
                 attachedApplication.output.PrintLine("Generating new world...");
-                world = new World.World(new Random().Next());
+                world = new World.World(attachedApplication, new Random().Next());
                 // Start the new world in a thread
                 Thread worldThread = new Thread(world.Start);
                 worldThread.Start();
@@ -68,7 +68,7 @@ namespace CommandSurvivalAdventure.Support.Networking
             // Publish this new message on the send topic
             networkingManager.Publish(sendCommandsTopic, JsonConvert.SerializeObject(RPCToSend));
         }
-        // Sends a RPC to the client client with the given ID
+        // Sends a RPC to the client with the given ID
         public void SendRPC(RPC RPCToSend, string clientID)
         {
             // Publish this new message on the send topic

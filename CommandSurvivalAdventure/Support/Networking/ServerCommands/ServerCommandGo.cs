@@ -23,7 +23,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // Get the direction that the player wants to go
             World.Direction desiredDirection = World.Direction.StringToDirection(givenArguments[0]);
             // Notify everyone in the current chunk that we left
-            foreach (World.GameObject gameObject in server.world.GetChunk(sender.position).children)
+            foreach (World.GameObject gameObject in server.world.GetChunkOrGenerate(sender.position).children)
             {
                 if(gameObject.specialProperties.ContainsKey("isPlayer") && gameObject.identifier.name != sender.identifier.name)
                 {
@@ -49,7 +49,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // Move the player in the desired direction
             server.world.MovePlayer(nameOfSender, new World.Position(sender.position.x + desiredDirection.x, sender.position.y + desiredDirection.y, sender.position.z + desiredDirection.z));
             // Notify everyone in the chunk we just arrived at that we have come
-            foreach (World.GameObject gameObject in server.world.GetChunk(sender.position).children)
+            foreach (World.GameObject gameObject in server.world.GetChunkOrGenerate(sender.position).children)
             {
                 if (gameObject.specialProperties.ContainsKey("isPlayer") && gameObject.identifier.name != sender.identifier.name)
                 {
@@ -62,7 +62,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // Send a look command
 
             // Describe the current chunk that the sender is on
-            string description = Processing.Describer.GetUpdate(server.world.GetChunk(sender.position), sender);
+            string description = Processing.Describer.GetUpdate(server.world.GetChunkOrGenerate(sender.position), sender);
             // Send this new string back to the sender
             RPCs.RPCSay lookRPC = new RPCs.RPCSay();
             lookRPC.arguments.Add(description);

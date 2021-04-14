@@ -16,6 +16,17 @@ namespace CommandSurvivalAdventure.World
         // The seed of the chunk
         public int seed;
         
+        // Always use this constructor if this chunk is to be part of the world
+        public Chunk(Application newApplication)
+        {
+            attachedApplication = newApplication;
+        }
+
+        public Chunk()
+        {
+
+        }
+
         // Starts the chunk
         public override void Start()
         {
@@ -26,8 +37,12 @@ namespace CommandSurvivalAdventure.World
         // Updates the chunk
         public override void Update()
         {
+            // Get a hashset copy of the children since we may be making changes to the actual children of this chunk
+            HashSet<GameObject> referencesToChildren = new HashSet<GameObject>();
+            foreach (GameObject child in children)
+                referencesToChildren.Add(child);
             // Update all the game objects on the chunk
-            foreach (GameObject gameObject in children)
+            foreach (GameObject gameObject in referencesToChildren)
                 gameObject.Update();
         }
         // Generates the chunk
@@ -86,7 +101,7 @@ namespace CommandSurvivalAdventure.World
             // Glacier
             else
                 biome = new Biomes.BiomeGlacier();
-
+            //biome = new Biomes.BiomeCanyon();
             // Generate the new biome
             biome.Generate(this);
         }
