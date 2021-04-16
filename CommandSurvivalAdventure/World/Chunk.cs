@@ -37,13 +37,15 @@ namespace CommandSurvivalAdventure.World
         // Updates the chunk
         public override void Update()
         {
-            // Get a hashset copy of the children since we may be making changes to the actual children of this chunk
-            HashSet<GameObject> referencesToChildren = new HashSet<GameObject>();
-            foreach (GameObject child in children)
-                referencesToChildren.Add(child);
             // Update all the game objects on the chunk
-            foreach (GameObject gameObject in referencesToChildren)
-                gameObject.Update();
+
+            // Get the children as a copied array because children may leave the chunk and thus modify the children HashSet, preventing us from doing a normal foreach
+            GameObject[] arrayOfChildren = new GameObject[children.Count];
+            children.CopyTo(arrayOfChildren);
+            for(int i = 0; i < children.Count; i++)
+            {
+                arrayOfChildren[i].Update();
+            }
         }
         // Generates the chunk
         public void Generate(int x, int y, int z, int newSeed, World world)

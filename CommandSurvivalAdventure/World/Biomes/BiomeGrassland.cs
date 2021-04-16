@@ -23,6 +23,8 @@ namespace CommandSurvivalAdventure.World.Biomes
 
             // TODO: Make creature generation more dynamic
             Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
+            newGoat.identifier.descriptiveAdjectives.Add("fat");
+            newGoat.identifier.descriptiveAdjectives.Add("wild");
             chunkToPopulate.AddChild(newGoat);
 
             #region Add plants

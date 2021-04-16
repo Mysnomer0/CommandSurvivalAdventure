@@ -22,6 +22,8 @@ namespace CommandSurvivalAdventure.World.Biomes
             chunkToPopulate.temperature = (normalTemperature * (random.Next(2, 4) / 3));
 
             Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
+            newGoat.identifier.descriptiveAdjectives.Add("wild");
+            newGoat.identifier.classifierAdjectives.Add("bearded");
             chunkToPopulate.AddChild(newGoat);
 
             #region Add minerals

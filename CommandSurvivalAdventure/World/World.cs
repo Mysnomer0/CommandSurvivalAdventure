@@ -229,11 +229,20 @@ namespace CommandSurvivalAdventure.World
             if(GetChunk(newPosition) != null)
             {
                 // Add the gameObject to the new chunk
-                AddToChunk(GetGameObject(IDOfObject), newPosition);
-                // Remove it from the old one
+                
                 RemoveFromChunk(IDOfObject, GetGameObject(IDOfObject).position);
+                //attachedApplication.output.PrintLine("Added " + GetGameObject(IDOfObject).identifier.fullName + " to chunk at position " + newPosition.x.ToString() + " " + newPosition.y.ToString() + " " + newPosition.z.ToString() + " ");
+                //attachedApplication.output.PrintLine("Children on new chunk:");
+                //foreach (GameObject child in GetChunk(newPosition).children)
+                //{
+                //    attachedApplication.output.PrintLine(child.identifier.fullName); 
+                //}
+
+                // Remove it from the old one
+                AddToChunk(GetGameObject(IDOfObject), newPosition);
+                //attachedApplication.output.PrintLine("Removed " + GetGameObject(IDOfObject).identifier.fullName + " from chunk at position " + GetGameObject(IDOfObject).position.x.ToString() + " " + GetGameObject(IDOfObject).position.y.ToString() + " " + GetGameObject(IDOfObject).position.z.ToString() + " ");
                 // Set it's position to the new position
-                GetGameObject(IDOfObject).ChangePosition(newPosition);
+                //GetGameObject(IDOfObject).ChangePosition(newPosition);
             }
         }           
         // Gets the object with the specified ID and specified position

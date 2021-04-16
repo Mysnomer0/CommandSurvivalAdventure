@@ -62,7 +62,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // Send a look command
 
             // Describe the current chunk that the sender is on
-            string description = Processing.Describer.GetUpdate(server.world.GetChunkOrGenerate(sender.position), sender);
+            string description = Processing.Describer.Describe(server.world.GetChunkOrGenerate(sender.position), sender);
             // Send this new string back to the sender
             RPCs.RPCSay lookRPC = new RPCs.RPCSay();
             lookRPC.arguments.Add(description);
