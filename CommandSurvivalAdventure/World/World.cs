@@ -14,13 +14,15 @@ namespace CommandSurvivalAdventure.World
         // The water level of the world
         public float waterLevel;
         // The world width and length
-        public int worldSize = 10;
+        public int worldSize = 40;
         // The render distance
         public int renderDistance = 5;
         // The list of players on this world
         public Dictionary<string, Core.Player> players = new Dictionary<string, Core.Player>();
         // The 3D dictionary storing all the chunks on the world
         public Dictionary<int, Dictionary<int, Dictionary<int, Chunk>>> chunks;
+
+        public Chunk[][][] allChunks;
         // The dictionary mapping all gameObject IDs to their corresponding gameObjects
         public Dictionary<int, GameObject> gameObjectDictionary = new Dictionary<int, GameObject>();
         // The ID manager for the world gameObjects
@@ -33,10 +35,11 @@ namespace CommandSurvivalAdventure.World
             identifier.name = "world";
             seed = newSeed;
             waterLevel = new Random(newSeed).Next(60);
+            
             // Generate the initial chunk
             Chunk chunk = new Chunk(attachedApplication);
             AddChild(chunk);
-            chunk.Generate(0, 0, 0, seed, this);
+            chunk.Generate(new Position(0,0,0), seed, this);
             // Initialize the chunks
             chunks = new Dictionary<int, Dictionary<int, Dictionary<int, Chunk>>>();
             chunks.Add(0, new Dictionary<int, Dictionary<int, Chunk>>());
@@ -124,7 +127,7 @@ namespace CommandSurvivalAdventure.World
                 // Create a new chunk and add it as a child
                 Chunk chunk = new Chunk(attachedApplication);
                 AddChild(chunk);
-                chunk.Generate(position.x, position.y, position.z, seed, this);
+                chunk.Generate(position, seed, this);
                 chunks[position.x][position.y].Add(position.z, chunk);
             }
             else if (!chunks[position.x].ContainsKey(position.y))
@@ -133,7 +136,7 @@ namespace CommandSurvivalAdventure.World
                 // Create a new chunk and add it as a child
                 Chunk chunk = new Chunk(attachedApplication);
                 AddChild(chunk);
-                chunk.Generate(position.x, position.y, position.z, seed, this);
+                chunk.Generate(position, seed, this);
                 chunks[position.x][position.y].Add(position.z, chunk);
             }
             else if (!chunks[position.x][position.y].ContainsKey(position.z))
@@ -141,7 +144,7 @@ namespace CommandSurvivalAdventure.World
                 // Create a new chunk and add it as a child
                 Chunk chunk = new Chunk(attachedApplication);
                 AddChild(chunk);
-                chunk.Generate(position.x, position.y, position.z, seed, this);
+                chunk.Generate(position, seed, this);
                 chunks[position.x][position.y].Add(position.z, chunk);
             }
         }

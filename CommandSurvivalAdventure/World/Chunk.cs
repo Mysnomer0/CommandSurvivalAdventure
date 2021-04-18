@@ -48,16 +48,16 @@ namespace CommandSurvivalAdventure.World
             }
         }
         // Generates the chunk
-        public void Generate(int x, int y, int z, int newSeed, World world)
+        public void Generate(Position newPosition, int newSeed, World world)
         {
             base.Generate(seed);
-            identifier.name = "Chunk " + x.ToString() + " " + y.ToString() + " " + z.ToString();
-            ChangePosition(new Position(x, y, z));
+            identifier.name = "Chunk " + newPosition.x.ToString() + " " + newPosition.y.ToString() + " " + newPosition.z.ToString();
+            ChangePosition(newPosition);
             seed = newSeed;
             // Generate the perlin noise
             Support.Perlin perlin = new Support.Perlin();
             // Based on the seed figure out the height of the chunk
-            double noiseValue = perlin.GetValue(x, 0, z, 4, 15, 0.005f, seed) * 150.0f;
+            double noiseValue = perlin.GetValue(newPosition.x, 0, newPosition.z, 4, 15, 0.005f, seed) * 150.0f;
             // Ocean
             if (noiseValue < world.waterLevel)
                 biome = new Biomes.BiomeOcean();

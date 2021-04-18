@@ -173,7 +173,7 @@ namespace CommandSurvivalAdventure.World.Creatures
                     if (playerEntry.Value.controlledGameObject.position == position)
                         // Send an informational RPC to them letting them know
                         attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                }*/
+                }//*/
             }
         }
         public CreatureGoat(Application newApplication)
