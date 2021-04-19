@@ -14,15 +14,13 @@ namespace CommandSurvivalAdventure.World
         // The water level of the world
         public float waterLevel;
         // The world width and length
-        public int worldSize = 40;
+        public int worldSize = 5;
         // The render distance
         public int renderDistance = 5;
         // The list of players on this world
         public Dictionary<string, Core.Player> players = new Dictionary<string, Core.Player>();
         // The 3D dictionary storing all the chunks on the world
         public Dictionary<int, Dictionary<int, Dictionary<int, Chunk>>> chunks;
-
-        public Chunk[][][] allChunks;
         // The dictionary mapping all gameObject IDs to their corresponding gameObjects
         public Dictionary<int, GameObject> gameObjectDictionary = new Dictionary<int, GameObject>();
         // The ID manager for the world gameObjects
@@ -35,6 +33,7 @@ namespace CommandSurvivalAdventure.World
             identifier.name = "world";
             seed = newSeed;
             waterLevel = new Random(newSeed).Next(60);
+
             
             // Generate the initial chunk
             Chunk chunk = new Chunk(attachedApplication);
@@ -48,14 +47,15 @@ namespace CommandSurvivalAdventure.World
 
             // Render around the new position
             // TODO: Render on the y axis as well, underground stuff
-            for (int x = -worldSize / 2; x < worldSize / 2; x++)
+            for (int x = -worldSize; x < worldSize; x++)
             {
-                for (int z = -worldSize / 2; z < worldSize / 2; z++)
+                for (int z = -worldSize; z < worldSize; z++)
                 {
                     // If a chunk doesn't exist at the new position, generate one.  
                     GenerateChunkIfNecessary(new Position(x, 0, z));
                 }
             }
+            
         }
 
         #region Overriden GameObject API
@@ -63,30 +63,35 @@ namespace CommandSurvivalAdventure.World
         public override void Start()
         {
             // Start all chunks
-            for (int x = -worldSize / 2; x < worldSize / 2; x++)
+            foreach (KeyValuePair<int, Dictionary<int, Dictionary<int, Chunk>>> entry1 in chunks)
             {
-                for (int z = -worldSize / 2; z < worldSize / 2; z++)
+                foreach (KeyValuePair<int, Dictionary<int, Chunk>> entry2 in entry1.Value)
                 {
-                    chunks[x][0][z].Start();
-                    //chunks[x][y][z].Start();
-                    
+                    foreach (KeyValuePair<int, Chunk> entry3 in entry2.Value)
+                    {
+                        entry3.Value.Start();
+                    }
                 }
             }
+
             // Start the update cycle
             Update();
         }
         // Updates the world
         public override void Update()
         {
-            // Update all chunks
-            for (int x = -worldSize / 2; x < worldSize / 2; x++)
+            // Go through all chunks and update
+            foreach(KeyValuePair<int, Dictionary<int, Dictionary<int, Chunk>>> entry1 in chunks)
             {
-                for (int z = -worldSize / 2; z < worldSize / 2; z++)
+                foreach (KeyValuePair<int, Dictionary<int, Chunk>> entry2 in entry1.Value)
                 {
-                    //chunks[x][y][z].Update();
-                    chunks[x][0][z].Update();                   
+                    foreach (KeyValuePair<int, Chunk> entry3 in entry2.Value)
+                    {
+                        entry3.Value.Update();
+                    }
                 }
             }
+
             // Wait a bit, then continue the update cycle
             Thread.Sleep(1000);
             Update();
@@ -219,12 +224,8 @@ namespace CommandSurvivalAdventure.World
                     GenerateChunkIfNecessary(new Position(x, 0 , z));
                 }
             }
-            // Add the gameObject to the new chunk
-            AddToChunk(GetGameObject(IDOfObject), newPosition);
-            // Remove it from the old one
-            RemoveFromChunk(IDOfObject, GetGameObject(IDOfObject).position);
-            // Set it's position to the new position
-            GetGameObject(IDOfObject).ChangePosition(newPosition);
+            // Move object
+            MoveObject(IDOfObject, newPosition);
         }
         public void MoveObject(int IDOfObject, Position newPosition)
         {

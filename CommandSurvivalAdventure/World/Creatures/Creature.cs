@@ -7,7 +7,7 @@ namespace CommandSurvivalAdventure.World
     // This class encapsulates all data and functionality pertaining to a creature
     class Creature : GameObject
     {
-        // The random generator for the creature
+        // The random generator for the creature to base actions and stats off of
         public Random random;
         // The speed of the creature
         public float speed;

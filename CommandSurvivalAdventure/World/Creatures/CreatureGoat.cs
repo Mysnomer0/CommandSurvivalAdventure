@@ -9,8 +9,7 @@ namespace CommandSurvivalAdventure.World.Creatures
         // Initialize
         public override void Start()
         {
-            base.Start();
-            random = new Random();
+            base.Start();           
         }
         // Update
         public override void Update()
@@ -182,9 +181,7 @@ namespace CommandSurvivalAdventure.World.Creatures
             // Set the type
             type = typeof(CreatureGoat);
             identifier.name = "goat";
-
-            // Make a new seeded random instance for generating stats about the Minotaur
-            Random random = new Random();
+            random = new Random();
             // Generate the stats for the minotaur
             specialProperties.Add("stance", "STANDING");
             specialProperties.Add("blocking", "NULL");
