@@ -103,7 +103,7 @@ namespace CommandSurvivalAdventure.World
             // Glacier
             else
                 biome = new Biomes.BiomeGlacier();
-            //biome = new Biomes.BiomeCanyon();
+            //biome = new Biomes.BiomeGrassland();
             // Generate the new biome
             biome.Generate(this);
         }

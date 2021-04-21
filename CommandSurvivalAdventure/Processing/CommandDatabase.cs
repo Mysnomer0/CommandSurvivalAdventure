@@ -61,6 +61,7 @@ namespace CommandSurvivalAdventure.Processing
             commands.Add("block", new Commands.CommandBlock(attachedApplication));
             commands.Add("b", new Commands.CommandBlock(attachedApplication));
             commands.Add("put", new Commands.CommandPut(attachedApplication));
+            commands.Add("approach", new Commands.CommandApproach(attachedApplication));
         }
     }
 }

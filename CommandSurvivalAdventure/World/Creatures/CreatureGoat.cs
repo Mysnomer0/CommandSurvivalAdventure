@@ -6,6 +6,10 @@ namespace CommandSurvivalAdventure.World.Creatures
 {
     class CreatureGoat : Creature
     {
+        // The AI state of the goat, from which the AI decides actions
+        public AIStates AIState = AIStates.HUNGRY;
+        // The sleeping timer
+        public int sleepingTimer = 0;
         // Initialize
         public override void Start()
         {
@@ -16,165 +20,210 @@ namespace CommandSurvivalAdventure.World.Creatures
         {
             base.Update();
 
-            // Decide whether to find food
-            if (random.Next(1, 20) == 1)
+            // Use a while true loop so we can break the code when needed
+            while(true)
             {
-                // Look if there is any nearby food
-                bool foundFood = false;
-                string nameOfFood = "grass";
-                // Get all the children of this chunk
-                List<GameObject> children = parent.GetAllChildren();
-                // Go through the children and find all the ones with grass in it's full name
-                foreach (GameObject child in children)
+                if (AIState == AIStates.HUNGRY)
                 {
-                    if (child.identifier.fullName.Contains(nameOfFood))
+                    // Look if there is any nearby food
+                    bool foundFood = false;
+                    string nameOfFood = "grass";
+                    // Get all the children of this chunk
+                    List<GameObject> children = parent.GetAllChildren();
+                    // Go through the children and find all the ones with grass in it's full name
+                    foreach (GameObject child in children)
                     {
-                        foundFood = true;
+                        if (child.identifier.fullName.Contains(nameOfFood))
+                        {
+                            foundFood = true;
+                            break;
+                        }
+                    }
+
+                    // If so, graze
+                    if (foundFood)
+                    {
+                        // If content and has food, possibly sleep
+                        if (random.Next(0, 120) == 0)
+                        {
+                            // Change the stance to laying down
+                            specialProperties["stance"] = StanceToString(Stances.LAYING);
+                            // Create a message entailing our action and send it to nearby players
+                            Support.Networking.RPCs.RPCSay sleepMessage = new Support.Networking.RPCs.RPCSay();
+                            sleepMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " lays down to sleep.");
+
+                            // Get the nearby players to notify them our action
+                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                            {
+                                // If this player is in our chunk
+                                if (playerEntry.Value.controlledGameObject.position == position)
+                                    // Send an informational RPC to them letting them know
+                                    attachedApplication.server.SendRPC(sleepMessage, playerEntry.Key);
+                            }
+                            // Go into the sleeping state
+                            AIState = AIStates.SLEEPING;
+                            // Set the sleeping timer
+                            sleepingTimer = 60;
+                            // Set the adjective
+                            identifier.descriptiveAdjectives.Add("sleeping");
+                            break;
+                        }
+                        // Every so often graze on the grass
+                        else if (random.Next(0, 60) == 0)
+                        {
+                            // Create a message entailing our action and send it to nearby players
+                            Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
+                            actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " grazes on the grass...");
+
+                            // Get the nearby players to notify them our action
+                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                            {
+                                // If this player is in our chunk
+                                if (playerEntry.Value.controlledGameObject.position == position)
+                                    // Send an informational RPC to them letting them know
+                                    attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
+                            }
+                        }
+                        // Goat bleating
+                        else if (random.Next(1, 60) == 1)
+                        {
+                            // Create a message entailing our action and send it to nearby players
+                            Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
+                            actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " bleats softly...");
+
+                            // Get the nearby players to notify them our action
+                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                            {
+                                // If this player is in our chunk
+                                if (playerEntry.Value.controlledGameObject.position == position)
+                                    // Send an informational RPC to them letting them know
+                                    attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
+                            }
+                        }
+                        // Goat looks at random nearby player
+                        else if (random.Next(1, 60) == 1)
+                        {
+                            // List of nearby players
+                            List<Core.Player> nearbyPlayers = new List<Core.Player>();
+                            // Get the nearby players
+                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                            {
+                                // If this player is in our chunk
+                                if (playerEntry.Value.controlledGameObject.position == position)
+                                {
+                                    nearbyPlayers.Add(playerEntry.Value);
+                                }
+                            }
+                            // If someone is nearby, look at them
+                            if (nearbyPlayers.Count > 0)
+                            {
+                                // Choose a random person nearby to look at
+                                Core.Player playerToLookAt = nearbyPlayers.ToArray()[random.Next(0, nearbyPlayers.Count)];
+                                // Create a message entailing our action and send it to nearby players
+                                Support.Networking.RPCs.RPCSay lookAtYouMessage = new Support.Networking.RPCs.RPCSay();
+                                lookAtYouMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at you cautiously...");
+                                Support.Networking.RPCs.RPCSay lookAtPlayerMessage = new Support.Networking.RPCs.RPCSay();
+                                lookAtPlayerMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at " + playerToLookAt.name + " cautiously...");
+
+                                // Get the nearby players to notify them our action
+                                foreach (Core.Player player in nearbyPlayers)
+                                {
+                                    // If this player is in our chunk
+                                    if (player == playerToLookAt)
+                                        // Send an informational RPC to them letting them know
+                                        attachedApplication.server.SendRPC(lookAtYouMessage, player.name);
+                                    else
+                                        // Send an informational RPC to them letting them know
+                                        attachedApplication.server.SendRPC(lookAtPlayerMessage, player.name);
+                                }
+                            }
+                        }
+                        // Goat panting from the heat
+                        else if (random.Next(1, 60) == 1)
+                        {
+                            if (attachedApplication.server.world.GetChunk(position).temperature > 80)
+                            {
+                                // Create a message entailing our action and send it to nearby players
+                                Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
+                                actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " pants from the heat...");
+
+                                // Get the nearby players to notify them our action
+                                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                                {
+                                    // If this player is in our chunk
+                                    if (playerEntry.Value.controlledGameObject.position == position)
+                                        // Send an informational RPC to them letting them know
+                                        attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
+                                }
+                            }
+                        }
+                    }
+                    // If not, go to a random nearby chunk to find food
+                    else if (attachedApplication.server.world.players.Count > 0)
+                    {
+                        // Decide a direction to go
+                        Direction desiredDirection = Direction.IntToDirection(random.Next(0, 7));
+                        Position newPosition = new Position(position.x + desiredDirection.x, position.y + desiredDirection.y, position.z + desiredDirection.z);
+                        // Choose a random direction until we get one where there is a valid chunk at our destination
+                        while (attachedApplication.server.world.GetChunk(newPosition) == null)
+                        {
+                            desiredDirection = Direction.IntToDirection(random.Next(0, 7));
+                            newPosition = new Position(position.x + desiredDirection.x, position.y + desiredDirection.y, position.z + desiredDirection.z);
+                        }
+
+                        // Create a message entailing our action and send it to nearby players
+                        Support.Networking.RPCs.RPCSay leavingMessage = new Support.Networking.RPCs.RPCSay();
+                        leavingMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots " + Direction.DirectionToString(desiredDirection) + " in search of food...");
+                        Support.Networking.RPCs.RPCSay arrivingMessage = new Support.Networking.RPCs.RPCSay();
+                        arrivingMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots along from the " + Direction.DirectionToString(Direction.GetOpposite(desiredDirection)) + " in search of food...");
+                        // Get the nearby players to notify them our action
+                        foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                        {
+                            // If this player is in our chunk
+                            if (playerEntry.Value.controlledGameObject.position == position)
+                                // Send an informational RPC to them letting them know
+                                attachedApplication.server.SendRPC(leavingMessage, playerEntry.Key);
+                            // If this player is in the destination chunk
+                            if (playerEntry.Value.controlledGameObject.position == newPosition)
+                                // Send an informational RPC to them letting them know
+                                attachedApplication.server.SendRPC(arrivingMessage, playerEntry.Key);
+                        }
+                        attachedApplication.server.world.MoveObject(ID, newPosition);
+                    }
+                }
+                else if (AIState == AIStates.SLEEPING)
+                {
+                    // Keep the sleeping timer going
+                    sleepingTimer--;
+                    // If awake
+                    if (sleepingTimer <= 0)
+                    {
+                        // Stand back up
+                        specialProperties["stance"] = StanceToString(Stances.STANDING);
+                        // Get rid of the sleeping adjective
+                        identifier.descriptiveAdjectives.Remove("sleeping");
+                        // Go back to being hungry
+                        AIState = AIStates.HUNGRY;
+                        // Create a message entailing our action and send it to nearby players
+                        Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
+                        actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " wakes from it's slumber and stands up.");
+
+                        // Get the nearby players to notify them our action
+                        foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                        {
+                            // If this player is in our chunk
+                            if (playerEntry.Value.controlledGameObject.position == position)
+                                // Send an informational RPC to them letting them know
+                                attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
+                        }                        
                         break;
                     }
                 }
 
-                // If so, graze
-                if (foundFood)
-                {
-                    // Create a message entailing our action and send it to nearby players
-                    Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                    actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " grazes on the grass...");
-
-                    // Get the nearby players to notify them our action
-                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                    {
-                        // If this player is in our chunk
-                        if (playerEntry.Value.controlledGameObject.position == position)
-                            // Send an informational RPC to them letting them know
-                            attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                    }
-                }
-                //*
-                // If not, go to a random nearby chunk to find food
-                else if(attachedApplication.server.world.players.Count > 0)
-                {
-                    // Decide a direction to go
-                    Direction desiredDirection = Direction.IntToDirection(random.Next(0, 7));
-                    Position newPosition = new Position(position.x + desiredDirection.x, position.y + desiredDirection.y, position.z + desiredDirection.z);
-                    // Choose a random direction until we get one where there is a valid chunk at our destination
-                    while(attachedApplication.server.world.GetChunk(newPosition) == null)
-                    {
-                        desiredDirection = Direction.IntToDirection(random.Next(0, 7));
-                        newPosition = new Position(position.x + desiredDirection.x, position.y + desiredDirection.y, position.z + desiredDirection.z);
-                    }
-                          
-                    // Create a message entailing our action and send it to nearby players
-                    Support.Networking.RPCs.RPCSay leavingMessage = new Support.Networking.RPCs.RPCSay();
-                    leavingMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots " + Direction.DirectionToString(desiredDirection) + " in search of food...");
-                    Support.Networking.RPCs.RPCSay arrivingMessage = new Support.Networking.RPCs.RPCSay();
-                    arrivingMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots along from the " + Direction.DirectionToString(Direction.GetOpposite(desiredDirection)) + " in search of food...");
-                    // Get the nearby players to notify them our action
-                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                    {
-                        // If this player is in our chunk
-                        if (playerEntry.Value.controlledGameObject.position == position)
-                            // Send an informational RPC to them letting them know
-                            attachedApplication.server.SendRPC(leavingMessage, playerEntry.Key);
-                        // If this player is in the destination chunk
-                        if (playerEntry.Value.controlledGameObject.position == newPosition)
-                            // Send an informational RPC to them letting them know
-                            attachedApplication.server.SendRPC(arrivingMessage, playerEntry.Key);
-                    }
-                    attachedApplication.server.world.MoveObject(ID, newPosition);                                                                
-                                   
-                }//*/
-            }
-            // Goat bleating
-            if (random.Next(1, 60) == 1)
-            {
-                // Create a message entailing our action and send it to nearby players
-                Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " bleats softly...");
-
-                // Get the nearby players to notify them our action
-                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                {
-                    // If this player is in our chunk
-                    if (playerEntry.Value.controlledGameObject.position == position)
-                        // Send an informational RPC to them letting them know
-                        attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                }
-            }
-            // Goat looks at random nearby player
-            else if (random.Next(1, 60) == 1)
-            {
-                // List of nearby players
-                List<Core.Player> nearbyPlayers = new List<Core.Player>();
-                // Get the nearby players
-                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                {
-                    // If this player is in our chunk
-                    if (playerEntry.Value.controlledGameObject.position == position)
-                    {
-                        nearbyPlayers.Add(playerEntry.Value);
-                    }                       
-                }
-                // If someone is nearby, look at them
-                if(nearbyPlayers.Count > 0)
-                {
-                    // Choose a random person nearby to look at
-                    Core.Player playerToLookAt = nearbyPlayers.ToArray()[random.Next(0, nearbyPlayers.Count)];
-                    // Create a message entailing our action and send it to nearby players
-                    Support.Networking.RPCs.RPCSay lookAtYouMessage = new Support.Networking.RPCs.RPCSay();
-                    lookAtYouMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at you cautiously...");
-                    Support.Networking.RPCs.RPCSay lookAtPlayerMessage = new Support.Networking.RPCs.RPCSay();
-                    lookAtPlayerMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at " + playerToLookAt.name + " cautiously...");
-
-                    // Get the nearby players to notify them our action
-                    foreach (Core.Player player in nearbyPlayers)
-                    {
-                        // If this player is in our chunk
-                        if (player == playerToLookAt)
-                            // Send an informational RPC to them letting them know
-                            attachedApplication.server.SendRPC(lookAtYouMessage, player.name);
-                        else
-                            // Send an informational RPC to them letting them know
-                            attachedApplication.server.SendRPC(lookAtPlayerMessage, player.name);
-                    }
-                }              
-            }
-            // Goat panting from the heat
-            else if (random.Next(1, 60) == 1)
-            {
-                if(attachedApplication.server.world.GetChunk(position).temperature > 80)
-                {
-                    // Create a message entailing our action and send it to nearby players
-                    Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                    actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " pants from the heat...");
-
-                    // Get the nearby players to notify them our action
-                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                    {
-                        // If this player is in our chunk
-                        if (playerEntry.Value.controlledGameObject.position == position)
-                            // Send an informational RPC to them letting them know
-                            attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                    }
-                }                
-            }
-            else
-            {
-                /*
-                // Create a message entailing our action and send it to nearby players
-                Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                actionMessage.arguments.Add("Goat tick!");
-
-                // Get the nearby players to notify them our action
-                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                {
-                    // If this player is in our chunk
-                    if (playerEntry.Value.controlledGameObject.position == position)
-                        // Send an informational RPC to them letting them know
-                        attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                }//*/
-            }
+                break;
+            }         
         }
+
         public CreatureGoat(Application newApplication)
         {
             attachedApplication = newApplication;
@@ -182,7 +231,9 @@ namespace CommandSurvivalAdventure.World.Creatures
             type = typeof(CreatureGoat);
             identifier.name = "goat";
             random = new Random();
-            // Generate the stats for the minotaur
+
+            
+            // Generate the stats
             specialProperties.Add("stance", "STANDING");
             specialProperties.Add("blocking", "NULL");
             specialProperties.Add("isDeceased", "NULL");
@@ -255,6 +306,7 @@ namespace CommandSurvivalAdventure.World.Creatures
             #region Head
             CreatureParts.CreaturePartGoat.CreaturePartGoatHead head = new CreatureParts.CreaturePartGoat.CreaturePartGoatHead();
             head.identifier.name = "head";
+            head.identifier.classifierAdjectives.Add("goat");
             head.weight = (8 * (random.Next(9, 11) / 10));
             head.health = head.weight;
             head.muscleContent = head.weight * (random.Next(8, 12) / 10);
@@ -263,7 +315,7 @@ namespace CommandSurvivalAdventure.World.Creatures
             head.isCooked = false;
             head.isUnclean = false;
             #endregion
-
+        
             #region Body
             CreatureParts.CreaturePartGoat.CreaturePartGoatBody body = new CreatureParts.CreaturePartGoat.CreaturePartGoatBody();
             body.identifier.name = "body";
@@ -283,6 +335,47 @@ namespace CommandSurvivalAdventure.World.Creatures
             AddChild(rearRightLeg);
             AddChild(head);
             AddChild(body);
+
+            // Generate random female or male
+            if (random.Next(1, 3) == 2)
+            {
+                //identifier.descriptiveAdjectives.Add("male");
+
+                #region Horn1
+                CreatureParts.CreaturePartGoat.CreaturePartGoatHorn horn1 = new CreatureParts.CreaturePartGoat.CreaturePartGoatHorn();
+                horn1.identifier.name = "horn";
+                horn1.identifier.classifierAdjectives.Add("goat");
+                horn1.identifier.descriptiveAdjectives.Add("sharp");
+                horn1.weight = (2 * (random.Next(9, 11) / 10));
+                horn1.health = horn1.weight;
+                horn1.muscleContent = horn1.weight * (random.Next(8, 12) / 10);
+                horn1.fatContent = horn1.weight * (random.Next(8, 12) / 10);
+                horn1.isBleeding = false;
+                horn1.isCooked = false;
+                horn1.isUnclean = false;
+                #endregion
+
+                #region Horn2
+                CreatureParts.CreaturePartGoat.CreaturePartGoatHorn horn2 = new CreatureParts.CreaturePartGoat.CreaturePartGoatHorn();
+                horn2.identifier.name = "horn";
+                horn2.identifier.classifierAdjectives.Add("goat");
+                horn2.identifier.descriptiveAdjectives.Add("sharp");
+                horn2.weight = (2 * (random.Next(9, 11) / 10));
+                horn2.health = horn2.weight;
+                horn2.muscleContent = horn2.weight * (random.Next(8, 12) / 10);
+                horn2.fatContent = horn2.weight * (random.Next(8, 12) / 10);
+                horn2.isBleeding = false;
+                horn2.isCooked = false;
+                horn2.isUnclean = false;
+                #endregion
+
+                head.AddChild(horn1);
+                head.AddChild(horn2);
+            }
+            else
+            {
+                //identifier.descriptiveAdjectives.Add("female");
+            }            
         }
     }
 }

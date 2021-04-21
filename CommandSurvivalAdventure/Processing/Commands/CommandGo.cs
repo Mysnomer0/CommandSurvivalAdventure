@@ -22,6 +22,16 @@ namespace CommandSurvivalAdventure.Processing.Commands
                 attachedApplication.output.PrintLine("$maUsage $ma<direction>");
                 return;
             }
+            // If someone does "go to ..." this is an approach command
+            if(arguments[0] == "to")
+            {
+                // Create a new server command
+                Support.Networking.ServerCommands.ServerCommandApproach approachServerCommand = new Support.Networking.ServerCommands.ServerCommandApproach(attachedApplication.client.clientID);
+                // Set the argument
+                approachServerCommand.arguments.Add(arguments[1]);
+                // Send the request
+                attachedApplication.client.SendServerCommand(approachServerCommand);
+            }
             // Create a new server command
             Support.Networking.ServerCommands.ServerCommandGo serverCommand = new Support.Networking.ServerCommands.ServerCommandGo(attachedApplication.client.clientID);
             // Set the direction we want to move

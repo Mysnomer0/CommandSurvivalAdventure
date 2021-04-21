@@ -73,7 +73,7 @@ namespace CommandSurvivalAdventure.World
             // The new direction to return
             Direction directionToReturn = new Direction();
             // Based on the string, generate a direction
-            if(direction == "north")
+            if (direction == "north")
             {
                 directionToReturn.x = 0;
                 directionToReturn.y = 0;
@@ -121,6 +121,8 @@ namespace CommandSurvivalAdventure.World
                 directionToReturn.y = 0;
                 directionToReturn.z = 1;
             }
+            else
+                return null;
             return directionToReturn;
         }
         // Converts the given direction to a string

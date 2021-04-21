@@ -18,10 +18,18 @@ namespace CommandSurvivalAdventure.World
         }
         public static bool operator ==(Position position1, Position position2)
         {
+            if (object.ReferenceEquals(position1, null) && object.ReferenceEquals(position2, null))
+                return true;
+            else if (object.ReferenceEquals(position1, null) || object.ReferenceEquals(position2, null))
+                return false;
             return (position1.x == position2.x && position1.y == position2.y && position1.z == position2.z);
         }
         public static bool operator !=(Position position1, Position position2)
         {
+            if (object.ReferenceEquals(position1, null) && object.ReferenceEquals(position2, null))
+                return false;
+            else if (object.ReferenceEquals(position1, null) || object.ReferenceEquals(position2, null))
+                return true;
             return (position1.x != position2.x || position1.y != position2.y || position1.z != position2.z);
         }
     }

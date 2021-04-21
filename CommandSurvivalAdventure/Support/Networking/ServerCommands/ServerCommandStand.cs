@@ -13,7 +13,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // ARGS: none
 
             // The message we're going to send back
-            string response = "You stand up.";
+            string response = "You stood up.";
             // If the sender is already standing, change the response accordingly
             if (sender.specialProperties["stance"] == World.Creature.StanceToString(World.Creature.Stances.STANDING))
                 response = "You are already standing.";
@@ -35,7 +35,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             rPC.arguments.Add(response);
             server.SendRPC(rPC, nameOfSender);
             // If we actually were able to perform the action
-            if(response == "You stand up.")
+            if(response == "You stood up.")
             {
                 // Change the stance of the sender
                 sender.specialProperties["stance"] = World.Creature.StanceToString(World.Creature.Stances.STANDING);

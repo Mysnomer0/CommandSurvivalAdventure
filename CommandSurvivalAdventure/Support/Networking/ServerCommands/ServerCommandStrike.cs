@@ -90,6 +90,16 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             }
             #endregion
 
+            #region Check the object is in proximity
+            if (!sender.gameObjectsInProximity.Contains(objectToStrike))
+            {
+                RPCs.RPCSay error = new RPCs.RPCSay();
+                error.arguments.Add("You are not close enough to the " + objectToStrike.identifier.fullName + ". You must approach it first.");
+                server.SendRPC(error, nameOfSender);
+                return;
+            }
+            #endregion
+
             #region Calculate the time to wait
             // Calculate the time to wait, which is just the sender's reaction time plus the object's weight over our strength
             // reactionTime + (objectWeight/senderStrength)

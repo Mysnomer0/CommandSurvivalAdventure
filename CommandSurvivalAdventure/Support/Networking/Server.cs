@@ -37,17 +37,19 @@ namespace CommandSurvivalAdventure.Support.Networking
         {
             // Create a new networking manager
             networkingManager = new NetworkingManager(attachedApplication);
+            // Generate a new world
+            attachedApplication.output.PrintLine("Generating new world...");
+            world = new World.World(attachedApplication, new Random().Next());
+            // Start the new world in a thread
+            Thread worldThread = new Thread(world.Start);
+            worldThread.Start();
+            attachedApplication.output.PrintLine("Connecting to broker...");
             // Connect to the broker
             bool connectedToBroker = networkingManager.Connect(brokerAddress, brokerPort, serverID, 10);
             // If the connection was successful
             if(connectedToBroker)
             {
-                // Generate a new world
-                attachedApplication.output.PrintLine("Generating new world...");
-                world = new World.World(attachedApplication, new Random().Next());
-                // Start the new world in a thread
-                Thread worldThread = new Thread(world.Start);
-                worldThread.Start();
+                attachedApplication.output.PrintLine("Connected!");
                 // Setup the send and recieve topics
                 recieveCommandsTopic = serverID + "/Recieve";
                 networkingManager.Subscribe(recieveCommandsTopic);

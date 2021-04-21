@@ -40,6 +40,15 @@ namespace CommandSurvivalAdventure.World
             LUNGEING,
             FALLING
         }
+        // The various states this creature can take on, which it's AI can decide specific actions depending on it's state
+        public enum AIStates
+        {
+            SLEEPING,
+            FLEEING,
+            PURSUING,
+            HUNGRY,
+            ATTACKING
+        }
         // Converts the stance enum to a string
         public static string StanceToString(Stances stance)
         {

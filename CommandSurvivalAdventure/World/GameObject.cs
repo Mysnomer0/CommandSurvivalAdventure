@@ -20,6 +20,8 @@ namespace CommandSurvivalAdventure.World
         public int ID;
         // The position of the game object
         public Position position { get; private set; } = null;
+        // The list of game objects immediately nearby this game object
+        public HashSet<GameObject> gameObjectsInProximity = new HashSet<GameObject>();
         // The parent of this gameObject, if any
         public GameObject parent = null;
         // The list of sub parts, such as leg, head, leaf, trunk, etc
@@ -253,6 +255,15 @@ namespace CommandSurvivalAdventure.World
         // Changes the position of the GameObject and it's children
         public virtual void ChangePosition(Position newPosition)
         {
+            // Reset our list of objects in proximity if we're moving positions
+            if(position != null)
+            {
+                if(position != newPosition)
+                {
+                    gameObjectsInProximity.Clear();
+                }
+            }
+                
             // Set our position and our children's position to the new one
             position = newPosition;
             if(children != null)
