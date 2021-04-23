@@ -247,6 +247,9 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             // Calculate the damage
             float damage = float.Parse(objectToDoDamage.specialProperties["weight"], CultureInfo.InvariantCulture.NumberFormat);
 
+            // Call the take damage function on the object being struck
+            objectToStrike.StrikeThisGameObjectWithGameObject(sender, objectToDoDamage);
+
             #region Calculate damage multipliers
             // If the weapon is long, do a damage multiplier
             if (objectToUse.identifier.descriptiveAdjectives.Contains("long"))
@@ -275,8 +278,8 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
 
             #region If it's a player, knock them over if necessary
             // If we're hitting a player
-            if(objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name == "leg" 
-                || objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name == "head")
+            if(objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name.Contains("leg") 
+                || objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name.Contains("head"))
             {
                 if(objectToStrike.FindParentsWithSpecialProperty("isPlayer").Last().specialProperties["stance"] != "LAYING")
                 {

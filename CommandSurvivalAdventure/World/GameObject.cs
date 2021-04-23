@@ -32,7 +32,7 @@ namespace CommandSurvivalAdventure.World
         public virtual void Update() { }
         // Generates the gameObject, usefull for the world generation scripts
         public virtual void Generate(int seed) { }
-        // Adds a new child; Use instead of children.Add()
+        // Adds a new child; Please always use this instead of children.Add()!
         public virtual void AddChild(GameObject newChild)
         {
             // Make sure we don't add ourself to ourself
@@ -271,6 +271,11 @@ namespace CommandSurvivalAdventure.World
                 foreach(GameObject child in children)
                     child.ChangePosition(newPosition);
             }
+        }
+        // Call this function on a gameObject you want to strike. This function will handle damage specific for each type of game object. For example, a creature being struck would handle damage differently than a plant
+        public virtual void StrikeThisGameObjectWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike)
+        {
+
         }
     }
 }
