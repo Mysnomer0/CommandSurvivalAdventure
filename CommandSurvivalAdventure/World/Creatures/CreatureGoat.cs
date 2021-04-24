@@ -12,6 +12,10 @@ namespace CommandSurvivalAdventure.World.Creatures
         public int sleepingTimer = 0;
         // The list of game objects percieved to be a threat
         public HashSet<GameObject> gameObjectsPercievedAsThreat = new HashSet<GameObject>();
+        // The head of the goat
+        public CreatureParts.CreaturePartGoat.CreaturePartGoatHead head;
+        // The body of the goat
+        public CreatureParts.CreaturePartGoat.CreaturePartGoatBody body;
 
         public CreatureGoat(Application newApplication)
         {
@@ -22,8 +26,9 @@ namespace CommandSurvivalAdventure.World.Creatures
             random = new Random();
 
             
-            // Generate the stats
+            // Generate the stats            
             specialProperties.Add("stance", "STANDING");
+            /*
             specialProperties.Add("blocking", "NULL");
             specialProperties.Add("isDeceased", "NULL");
             specialProperties.Add("isStunned", "NULL");
@@ -31,6 +36,8 @@ namespace CommandSurvivalAdventure.World.Creatures
             specialProperties.Add("weight", random.Next(44, 310).ToString());
             specialProperties.Add("reactionTime", (random.NextDouble() * 2.0f + 3f).ToString());
             specialProperties.Add("speed", (random.NextDouble() * 2.0f).ToString());
+            specialProperties.Add("health", (weight + strength).ToString());
+            */
             // Generate the body parts of the goat
             #region Front Right Leg
             CreatureParts.CreaturePartGoat.CreaturePartGoatLeg frontRightLeg = new CreatureParts.CreaturePartGoat.CreaturePartGoatLeg();
@@ -93,10 +100,10 @@ namespace CommandSurvivalAdventure.World.Creatures
             #endregion
 
             #region Head
-            CreatureParts.CreaturePartGoat.CreaturePartGoatHead head = new CreatureParts.CreaturePartGoat.CreaturePartGoatHead();
+            head = new CreatureParts.CreaturePartGoat.CreaturePartGoatHead();
             head.identifier.name = "head";
             head.identifier.classifierAdjectives.Add("goat");
-            head.weight = (8 * (random.Next(9, 11) / 10));
+            head.weight = 8 + random.Next(-2, 2);
             head.health = head.weight;
             head.muscleContent = head.weight * (random.Next(8, 12) / 10);
             head.fatContent = head.weight * (random.Next(8, 12) / 10);
@@ -106,10 +113,10 @@ namespace CommandSurvivalAdventure.World.Creatures
             #endregion
         
             #region Body
-            CreatureParts.CreaturePartGoat.CreaturePartGoatBody body = new CreatureParts.CreaturePartGoat.CreaturePartGoatBody();
+            body = new CreatureParts.CreaturePartGoat.CreaturePartGoatBody();
             body.identifier.name = "body";
             body.identifier.classifierAdjectives.Add("goat");
-            body.weight = (30 * (random.Next(9, 11) / 10));
+            body.weight = 100 + random.Next(-20, 20);
             body.health = body.weight;
             body.muscleContent = body.weight * (random.Next(8, 12) / 10);
             body.fatContent = body.weight * (random.Next(8, 12) / 10);
@@ -177,6 +184,29 @@ namespace CommandSurvivalAdventure.World.Creatures
         public override void Update()
         {
             base.Update();
+
+            
+            // If dead, don't do update
+            if(isDeceased)
+                return;
+            // If out of health, die
+            if (head.health <= 0 || body.health <= 0)
+            {
+                isDeceased = true;
+                // Create a message entailing our action and send it to nearby players
+                Support.Networking.RPCs.RPCSay message = new Support.Networking.RPCs.RPCSay();
+                message.arguments.Add("The " + identifier.fullName + " falls to the ground, dead!");
+                identifier.descriptiveAdjectives.Add("dead");
+                specialProperties["stance"] = StanceToString(Stances.LAYING);
+                // Get the nearby players to notify them our action
+                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                {
+                    // If this player is in our chunk
+                    if (playerEntry.Value.controlledGameObject.position == position)
+                        // Send an informational RPC to them letting them know
+                        attachedApplication.server.SendRPC(message, playerEntry.Key);
+                }
+            }
 
             #region Look around for threats
 
@@ -392,17 +422,26 @@ namespace CommandSurvivalAdventure.World.Creatures
                         break;
                     }
                 }
+                else if (AIState == AIStates.ATTACKING)
+                {
 
-                break;
+                }
+                    break;
             }
             #endregion
         }
-
-        public override void StrikeThisGameObjectWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike)
+        public override void OnStrikeThisGameObjectWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike, float howMuchDamage)
         {
+            // Add the enemy to our percieved threats automatically if they do something aggressive
+            gameObjectsPercievedAsThreat.Add(whoIsStriking);
+            // Go into attacking state
+            AIState = AIStates.ATTACKING;
+            // Forward the damage to the body, since when someone hits the goat, we will assume they hit the body
+            body.health -= howMuchDamage;
+                       
             // Create a message entailing our action and send it to nearby players
             Support.Networking.RPCs.RPCSay message = new Support.Networking.RPCs.RPCSay();
-            message.arguments.Add("The " + identifier.fullName + " felt that! Damage and response will be implemented soon!");
+            message.arguments.Add("The " + identifier.fullName + " now has " + body.health.ToString() + " body health!");
 
             // Get the nearby players to notify them our action
             foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)

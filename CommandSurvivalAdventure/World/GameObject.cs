@@ -272,8 +272,13 @@ namespace CommandSurvivalAdventure.World
                     child.ChangePosition(newPosition);
             }
         }
-        // Call this function on a gameObject you want to strike. This function will handle damage specific for each type of game object. For example, a creature being struck would handle damage differently than a plant
-        public virtual void StrikeThisGameObjectWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike)
+        // This function is called when this gameObject is struck. Override this function to handle damage specific for each type of game object. For example, a creature being struck would handle damage differently than a plant
+        public virtual void OnStrikeThisGameObjectWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike, float howMuchDamage)
+        {
+
+        }
+        // This function is called when a gameObject enters proximity. 
+        public virtual void OnEnterProximity(GameObject whoIsEnteringProximity)
         {
 
         }

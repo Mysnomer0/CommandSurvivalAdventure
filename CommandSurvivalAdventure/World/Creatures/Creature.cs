@@ -26,9 +26,13 @@ namespace CommandSurvivalAdventure.World
         // The fat content of the creature, which is a sum of the fat content of each subpart, in weight
         public float fatContent;
         // Whether or not the creature is bleeding, anywhere
-        public bool isBleeding;
+        public bool isBleeding = false;
         // Whether or not the creature is sick or unclean, on any part of the body
-        public bool isUnclean;
+        public bool isUnclean = false;
+        // Whether or not the creature is dead
+        public bool isDeceased = false;
+        // Whether or not the creature is stunned
+        public bool isStunned = false;
 
         // The various different stances and positions the creature can take on
         public enum Stances

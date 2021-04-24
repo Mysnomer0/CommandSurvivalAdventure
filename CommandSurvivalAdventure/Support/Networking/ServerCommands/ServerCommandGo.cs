@@ -20,6 +20,14 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 server.SendRPC(newRPC, nameOfSender);
                 return;
             }
+            // Make sure the player is standing up
+            if (sender.specialProperties["stance"] != "STANDING")
+            {
+                RPCs.RPCSay newRPC = new RPCs.RPCSay();
+                newRPC.arguments.Add("You must be standing to go in a direction.");
+                server.SendRPC(newRPC, nameOfSender);
+                return;
+            }
             // Get the direction that the player wants to go
             World.Direction desiredDirection = World.Direction.StringToDirection(givenArguments[0]);
             // Notify everyone in the current chunk that we left

@@ -52,37 +52,44 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 server.SendRPC(failure, nameOfSender);
                 return;
             }
-            // If not, add it to the list of object's in our proximity
-            sender.gameObjectsInProximity.Add(gameObjectToApproach);
-            gameObjectToApproach.gameObjectsInProximity.Add(sender);
-            // The message we're going to send back
             
+            // The message we're going to send back           
             string intermediateResponse = "You walk up to the " + gameObjectToApproach.identifier.fullName + "...";
             RPCs.RPCSay intermediateRPC = new RPCs.RPCSay();
             intermediateRPC.arguments.Add(intermediateResponse);
             server.SendRPC(intermediateRPC, nameOfSender);
-            Thread.Sleep(1000);
 
-            string response = "You approached the " + gameObjectToApproach.identifier.fullName + ".";
-            // Send info back to the sender
-            RPCs.RPCSay rPC = new RPCs.RPCSay();
-            rPC.arguments.Add(response);
-            server.SendRPC(rPC, nameOfSender);
-
-            // Notify everyone in the chunk
-            foreach (World.GameObject gameObject in server.world.GetChunkOrGenerate(sender.position).children)
+            new Thread(() =>
             {
-                if (gameObject.specialProperties.ContainsKey("isPlayer") && gameObject.identifier.name != sender.identifier.name)
+                Thread.CurrentThread.IsBackground = true;
+                Thread.Sleep(1000);
+
+                // Add it to the list of object's in our proximity
+                sender.gameObjectsInProximity.Add(gameObjectToApproach);
+                gameObjectToApproach.gameObjectsInProximity.Add(sender);
+                gameObjectToApproach.OnEnterProximity(sender);
+
+                string response = "You approached the " + gameObjectToApproach.identifier.fullName + ".";
+                // Send info back to the sender
+                RPCs.RPCSay rPC = new RPCs.RPCSay();
+                rPC.arguments.Add(response);
+                server.SendRPC(rPC, nameOfSender);
+
+                // Notify everyone in the chunk
+                foreach (World.GameObject gameObject in server.world.GetChunkOrGenerate(sender.position).children)
                 {
-                    // Send a message to this player saying that we left the chunk
-                    RPCs.RPCSay newRPC = new RPCs.RPCSay();
-                    if(gameObjectToApproach.specialProperties.ContainsKey("isPlayer"))
-                        newRPC.arguments.Add(nameOfSender + " approached " + gameObjectToApproach.identifier.fullName + ".");
-                    else
-                        newRPC.arguments.Add(nameOfSender + " approached " + Processing.Describer.GetArticle(gameObjectToApproach.identifier.fullName) + gameObjectToApproach.identifier.fullName + ".");
-                    server.SendRPC(newRPC, gameObject.identifier.name);
+                    if (gameObject.specialProperties.ContainsKey("isPlayer") && gameObject.identifier.name != sender.identifier.name)
+                    {
+                        // Send a message to this player saying that we left the chunk
+                        RPCs.RPCSay newRPC = new RPCs.RPCSay();
+                        if (gameObjectToApproach.specialProperties.ContainsKey("isPlayer"))
+                            newRPC.arguments.Add(nameOfSender + " approached " + gameObjectToApproach.identifier.fullName + ".");
+                        else
+                            newRPC.arguments.Add(nameOfSender + " approached " + Processing.Describer.GetArticle(gameObjectToApproach.identifier.fullName) + gameObjectToApproach.identifier.fullName + ".");
+                        server.SendRPC(newRPC, gameObject.identifier.name);
+                    }
                 }
-            }            
+            }).Start();                     
         }
         public ServerCommandApproach(string nameOfSender)
         {

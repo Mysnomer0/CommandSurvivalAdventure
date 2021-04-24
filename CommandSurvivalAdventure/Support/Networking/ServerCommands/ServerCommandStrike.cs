@@ -246,23 +246,25 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 objectToDoDamage = objectToUse.GetAllChildren().Last();
             // Calculate the damage
             float damage = float.Parse(objectToDoDamage.specialProperties["weight"], CultureInfo.InvariantCulture.NumberFormat);
-
-            // Call the take damage function on the object being struck
-            objectToStrike.StrikeThisGameObjectWithGameObject(sender, objectToDoDamage);
-
-            #region Calculate damage multipliers
+         
+            // Calculate damage multipliers
             // If the weapon is long, do a damage multiplier
             if (objectToUse.identifier.descriptiveAdjectives.Contains("long"))
             {
                 damage *= 2;
             }
+            // If weapon is sharp, do damage multiplier
             if (objectToDoDamage.identifier.descriptiveAdjectives.Contains("sharp"))
             {
                 damage *= 3;
             }
-            #endregion
+
+
+            // Call the take damage function on the object being struck
+            objectToStrike.OnStrikeThisGameObjectWithGameObject(sender, objectToDoDamage, damage);
 
             #region Apply damage to objects
+            /*
             // If the object to strike has a health property
             if (objectToStrike.specialProperties.ContainsKey("health"))
             {
@@ -271,14 +273,14 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                     (float.Parse(objectToStrike.specialProperties["health"], CultureInfo.InvariantCulture.NumberFormat) - damage) < 0.0f ? 0.0f :
                     float.Parse(objectToStrike.specialProperties["health"], CultureInfo.InvariantCulture.NumberFormat) - damage
                     ).ToString();
-            }
+            }*/
             #endregion
 
             #region Physically change the object being struck, such as knock the player over, etc
 
-            #region If it's a player, knock them over if necessary
+            // If it's a player, knock them over if necessary
             // If we're hitting a player
-            if(objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name.Contains("leg") 
+            if (objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name.Contains("leg") 
                 || objectToStrike.FindParentsWithSpecialProperty("isPlayer").Count > 0 && objectToStrike.identifier.name.Contains("head"))
             {
                 if(objectToStrike.FindParentsWithSpecialProperty("isPlayer").Last().specialProperties["stance"] != "LAYING")
@@ -320,7 +322,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 }
                 
             }
-            #endregion
+            
 
             #endregion
 
