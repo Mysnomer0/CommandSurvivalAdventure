@@ -4,7 +4,7 @@ using System.Text;
 
 namespace CommandSurvivalAdventure.World.Creatures.CreatureParts.CreaturePartGoat
 {
-    class CreaturePartGoatHead : CreaturePart
+    class CreaturePartGoatHorn : CreaturePart
     {
 
     }

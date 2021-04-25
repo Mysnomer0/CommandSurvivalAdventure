@@ -11,6 +11,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <objectToLungeAt>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Get the object to lunge at
             World.GameObject objectToLungeAt = server.world.FindFirstGameObject(givenArguments[1], sender.position);
             /*

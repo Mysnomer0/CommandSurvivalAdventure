@@ -14,6 +14,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <(l)eft|(r)ight|(h)ead>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // The object to block with
             World.GameObject objectToBlockWith = null;
 

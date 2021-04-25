@@ -13,6 +13,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <objectToAttach> <objectToAttachTo> <objectToAttachWith>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Get each of the objects necessary to do the attaching
             World.GameObject objectToAttach = server.world.FindFirstGameObject(givenArguments[0], sender.position);
             World.GameObject objectToAttachTo = server.world.FindFirstGameObject(givenArguments[1], sender.position);

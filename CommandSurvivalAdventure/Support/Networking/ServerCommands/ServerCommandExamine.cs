@@ -12,6 +12,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfObjectToExamine>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // The gameObject that we will be examined
             World.GameObject gameObjectToExamine = server.world.FindFirstGameObject(givenArguments[0], sender.position);
 

@@ -12,6 +12,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: none
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // The summary of the inventory that we'll send back to the player
             string inventorySummary = "You are is possession of:\n";
             // Get the list of utilisable parts

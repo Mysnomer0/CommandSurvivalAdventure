@@ -12,8 +12,17 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <direction> 
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Make sure the direction is correct
-            if(World.Direction.StringToDirection(givenArguments[0]) == null)
+            if (World.Direction.StringToDirection(givenArguments[0]) == null)
             {
                 RPCs.RPCSay newRPC = new RPCs.RPCSay();
                 newRPC.arguments.Add("Invalid direction.  north | northeast | east...");

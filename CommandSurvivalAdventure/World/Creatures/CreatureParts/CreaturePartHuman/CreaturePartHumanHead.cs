@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CommandSurvivalAdventure.World.Creatures.CreatureParts.CreaturePartMinotaur
+namespace CommandSurvivalAdventure.World.Creatures.CreatureParts.CreaturePartHuman
 {
-    class CreaturePartMinotaurHead : CreaturePart
+    class CreaturePartHumanHead : CreaturePart
     {
-        public CreaturePartMinotaurHead()
+        public CreaturePartHumanHead()
         {
             // Make a new seeded random instance for generating stats about the part
             Random random = new Random();

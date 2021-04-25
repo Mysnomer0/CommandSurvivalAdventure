@@ -14,6 +14,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfCraftingRecipe> <nameOfIngredient>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Translate the name of the ingredient to a singular version, in case someone says "craft rope from vines"
             string nameOfIngredient = givenArguments[1].Singularize(false);
             // The avaliable ingredients

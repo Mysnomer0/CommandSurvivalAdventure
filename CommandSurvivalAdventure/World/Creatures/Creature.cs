@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Globalization;
 
 namespace CommandSurvivalAdventure.World
 {
@@ -9,14 +10,25 @@ namespace CommandSurvivalAdventure.World
     {
         // The random generator for the creature to base actions and stats off of
         public Random random;
-        // The speed of the creature
+        // The speed of the creature, lower is better
         public float speed;
         // The intelligence of the creature.  Higher is better
         public float intelligence;
         // The agility of the creature, used for calculating how well it can dodge attacks and climbing stuff
         public float agility;
         // The weight of the creature, a way to determine the size as well
-        public float weight;
+        public float weight
+        {
+            // Get the sum of weight of all parts of the creature
+            get
+            {
+                float sumOfAllWeight = 0f;
+                List<GameObject> listOfAllChildren = GetAllChildren();
+                foreach (GameObject child in listOfAllChildren)
+                    sumOfAllWeight += float.Parse(child.specialProperties["weight"], CultureInfo.InvariantCulture.NumberFormat);
+                return sumOfAllWeight;
+            }
+        }
         // The overall endurance of the creature.  This value fluctuates based off of things like hunger and how generally tired the creature is
         public float stamana;
         // The overall health of the creature, which is an averaged percentage of the health of all the creatures subparts

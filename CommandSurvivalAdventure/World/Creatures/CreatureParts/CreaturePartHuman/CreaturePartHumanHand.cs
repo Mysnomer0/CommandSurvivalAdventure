@@ -2,17 +2,17 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CommandSurvivalAdventure.World.Creatures.CreatureParts.CreaturePartMinotaur
+namespace CommandSurvivalAdventure.World.Creatures.CreatureParts.CreaturePartHuman
 {
-    class CreaturePartMinotaurLeg : CreaturePart
+    class CreaturePartHumanHand : CreaturePart
     {
-        public CreaturePartMinotaurLeg()
+        public CreaturePartHumanHand()
         {
             // Make a new seeded random instance for generating stats about the part
             Random random = new Random();
 
             // Add special properties
-            specialProperties.Add("weight", random.Next(60, 80).ToString());
+            specialProperties.Add("weight", random.Next(2, 4).ToString());
         }
     }
 }

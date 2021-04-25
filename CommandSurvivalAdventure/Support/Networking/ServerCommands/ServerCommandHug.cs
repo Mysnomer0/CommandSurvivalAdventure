@@ -14,8 +14,17 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfPersonToHug>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Make sure the object is a player
-            if(!server.world.players.ContainsKey(givenArguments[0]))
+            if (!server.world.players.ContainsKey(givenArguments[0]))
             {
                 // Make a message back to the sender
                 RPCs.RPCSay error = new RPCs.RPCSay();

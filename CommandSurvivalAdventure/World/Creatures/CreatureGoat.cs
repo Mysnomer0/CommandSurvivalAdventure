@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Linq;
 
 namespace CommandSurvivalAdventure.World.Creatures
 {
@@ -10,8 +12,13 @@ namespace CommandSurvivalAdventure.World.Creatures
         public AIStates AIState = AIStates.HUNGRY;
         // The sleeping timer
         public int sleepingTimer = 0;
+        // Whether or not the goat is in the middle of an action
+        public bool currentlyInTheMiddleOfPerformingAction = false;
         // The list of game objects percieved to be a threat
         public HashSet<GameObject> gameObjectsPercievedAsThreat = new HashSet<GameObject>();
+        // The gameObject that is known to be hostile
+        // TODO: Build this as a list soon so that creatures can handle fighting multiple enemies, and flee if too many enemies
+        public GameObject gameObjectKnownToBeHostile;
         // The head of the goat
         public CreatureParts.CreaturePartGoat.CreaturePartGoatHead head;
         // The body of the goat
@@ -25,8 +32,9 @@ namespace CommandSurvivalAdventure.World.Creatures
             identifier.name = "goat";
             random = new Random();
 
-            
+
             // Generate the stats            
+            speed = 4f + (float)random.NextDouble() * 2f;
             specialProperties.Add("stance", "STANDING");
             /*
             specialProperties.Add("blocking", "NULL");
@@ -39,19 +47,18 @@ namespace CommandSurvivalAdventure.World.Creatures
             specialProperties.Add("health", (weight + strength).ToString());
             */
             // Generate the body parts of the goat
+            // TODO: Go through and change all the health, isBleeding, etc attributes to special properties
             #region Front Right Leg
             CreatureParts.CreaturePartGoat.CreaturePartGoatLeg frontRightLeg = new CreatureParts.CreaturePartGoat.CreaturePartGoatLeg();
             frontRightLeg.identifier.name = "leg";
             frontRightLeg.identifier.classifierAdjectives.Add("front");
             frontRightLeg.identifier.classifierAdjectives.Add("right");
             frontRightLeg.identifier.classifierAdjectives.Add("goat");
-            frontRightLeg.weight = (10 * (random.Next(9, 11) / 10));
-            frontRightLeg.health = frontRightLeg.weight;
-            frontRightLeg.muscleContent = frontRightLeg.weight * (random.Next(8, 12) / 10);
-            frontRightLeg.fatContent = frontRightLeg.weight * (random.Next(8, 12) / 10);
-            frontRightLeg.isBleeding = false;
-            frontRightLeg.isCooked = false;
-            frontRightLeg.isUnclean = false;
+            frontRightLeg.specialProperties["weight"] = (25 + random.Next(-5, 5)).ToString();
+            frontRightLeg.specialProperties["health"] = frontRightLeg.specialProperties["weight"];
+            frontRightLeg.specialProperties["isBleeding"] = "FALSE";
+            frontRightLeg.specialProperties["isCooked"] = "FALSE";
+            frontRightLeg.specialProperties["isUnclean"] = "FALSE";
             #endregion
 
             #region Front Left Leg
@@ -60,13 +67,11 @@ namespace CommandSurvivalAdventure.World.Creatures
             frontLeftLeg.identifier.classifierAdjectives.Add("front");
             frontLeftLeg.identifier.classifierAdjectives.Add("left");
             frontLeftLeg.identifier.classifierAdjectives.Add("goat");
-            frontLeftLeg.weight = (10 * (random.Next(9, 11) / 10));
-            frontLeftLeg.health = frontLeftLeg.weight;
-            frontLeftLeg.muscleContent = frontLeftLeg.weight * (random.Next(8, 12) / 10);
-            frontLeftLeg.fatContent = frontLeftLeg.weight * (random.Next(8, 12) / 10);
-            frontLeftLeg.isBleeding = false;
-            frontLeftLeg.isCooked = false;
-            frontLeftLeg.isUnclean = false;
+            frontLeftLeg.specialProperties["weight"] = (25 + random.Next(-5, 5)).ToString();
+            frontLeftLeg.specialProperties["health"] = frontLeftLeg.specialProperties["weight"];
+            frontLeftLeg.specialProperties["isBleeding"] = "FALSE";
+            frontLeftLeg.specialProperties["isCooked"] = "FALSE";
+            frontLeftLeg.specialProperties["isUnclean"] = "FALSE";
             #endregion
 
             #region Rear Left Leg
@@ -75,13 +80,11 @@ namespace CommandSurvivalAdventure.World.Creatures
             rearLeftLeg.identifier.classifierAdjectives.Add("rear");
             rearLeftLeg.identifier.classifierAdjectives.Add("left");
             rearLeftLeg.identifier.classifierAdjectives.Add("goat");
-            rearLeftLeg.weight = (15 * (random.Next(9, 11) / 10));
-            rearLeftLeg.health = rearLeftLeg.weight;
-            rearLeftLeg.muscleContent = rearLeftLeg.weight * (random.Next(8, 12) / 10);
-            rearLeftLeg.fatContent = rearLeftLeg.weight * (random.Next(8, 12) / 10);
-            rearLeftLeg.isBleeding = false;
-            rearLeftLeg.isCooked = false;
-            rearLeftLeg.isUnclean = false;
+            rearLeftLeg.specialProperties["weight"] = (30 + random.Next(-5, 5)).ToString();
+            rearLeftLeg.specialProperties["health"] = rearLeftLeg.specialProperties["weight"];
+            rearLeftLeg.specialProperties["isBleeding"] = "FALSE";
+            rearLeftLeg.specialProperties["isCooked"] = "FALSE";
+            rearLeftLeg.specialProperties["isUnclean"] = "FALSE";
             #endregion
 
             #region Rear Right Leg
@@ -90,39 +93,33 @@ namespace CommandSurvivalAdventure.World.Creatures
             rearRightLeg.identifier.classifierAdjectives.Add("rear");
             rearRightLeg.identifier.classifierAdjectives.Add("right");
             rearRightLeg.identifier.classifierAdjectives.Add("goat");
-            rearRightLeg.weight = (15 * (random.Next(9, 11) / 10));
-            rearRightLeg.health = rearRightLeg.weight;
-            rearRightLeg.muscleContent = rearRightLeg.weight * (random.Next(8, 12) / 10);
-            rearRightLeg.fatContent = rearRightLeg.weight * (random.Next(8, 12) / 10);
-            rearRightLeg.isBleeding = false;
-            rearRightLeg.isCooked = false;
-            rearRightLeg.isUnclean = false;
+            rearRightLeg.specialProperties["weight"] = (30 + random.Next(-5, 5)).ToString();
+            rearRightLeg.specialProperties["health"] = rearRightLeg.specialProperties["weight"];
+            rearRightLeg.specialProperties["isBleeding"] = "FALSE";
+            rearRightLeg.specialProperties["isCooked"] = "FALSE";
+            rearRightLeg.specialProperties["isUnclean"] = "FALSE";
             #endregion
 
             #region Head
             head = new CreatureParts.CreaturePartGoat.CreaturePartGoatHead();
             head.identifier.name = "head";
             head.identifier.classifierAdjectives.Add("goat");
-            head.weight = 8 + random.Next(-2, 2);
-            head.health = head.weight;
-            head.muscleContent = head.weight * (random.Next(8, 12) / 10);
-            head.fatContent = head.weight * (random.Next(8, 12) / 10);
-            head.isBleeding = false;
-            head.isCooked = false;
-            head.isUnclean = false;
+            head.specialProperties["weight"] = (8 + random.Next(-2, 2)).ToString();
+            head.specialProperties["health"] = head.specialProperties["weight"];
+            head.specialProperties["isBleeding"] = "FALSE";
+            head.specialProperties["isCooked"] = "FALSE";
+            head.specialProperties["isUnclean"] = "FALSE";
             #endregion
-        
+
             #region Body
             body = new CreatureParts.CreaturePartGoat.CreaturePartGoatBody();
             body.identifier.name = "body";
             body.identifier.classifierAdjectives.Add("goat");
-            body.weight = 100 + random.Next(-20, 20);
-            body.health = body.weight;
-            body.muscleContent = body.weight * (random.Next(8, 12) / 10);
-            body.fatContent = body.weight * (random.Next(8, 12) / 10);
-            body.isBleeding = false;
-            body.isCooked = false;
-            body.isUnclean = false;
+            body.specialProperties["weight"] = (100 + random.Next(-20, 20)).ToString();
+            body.specialProperties["health"] = body.specialProperties["weight"];
+            body.specialProperties["isBleeding"] = "FALSE";
+            body.specialProperties["isCooked"] = "FALSE";
+            body.specialProperties["isUnclean"] = "FALSE";
             #endregion
             // Add all the creature parts
             AddChild(frontRightLeg);
@@ -142,13 +139,11 @@ namespace CommandSurvivalAdventure.World.Creatures
                 horn1.identifier.name = "horn";
                 horn1.identifier.classifierAdjectives.Add("goat");
                 horn1.identifier.descriptiveAdjectives.Add("sharp");
-                horn1.weight = (2 * (random.Next(9, 11) / 10));
-                horn1.health = horn1.weight;
-                horn1.muscleContent = horn1.weight * (random.Next(8, 12) / 10);
-                horn1.fatContent = horn1.weight * (random.Next(8, 12) / 10);
-                horn1.isBleeding = false;
-                horn1.isCooked = false;
-                horn1.isUnclean = false;
+                horn1.specialProperties["weight"] = (4 + random.Next(-2, 2)).ToString();
+                horn1.specialProperties["health"] = horn1.specialProperties["weight"];
+                horn1.specialProperties["isBleeding"] = "FALSE";
+                horn1.specialProperties["isCooked"] = "FALSE";
+                horn1.specialProperties["isUnclean"] = "FALSE";
                 #endregion
 
                 #region Horn2
@@ -156,13 +151,11 @@ namespace CommandSurvivalAdventure.World.Creatures
                 horn2.identifier.name = "horn";
                 horn2.identifier.classifierAdjectives.Add("goat");
                 horn2.identifier.descriptiveAdjectives.Add("sharp");
-                horn2.weight = (2 * (random.Next(9, 11) / 10));
-                horn2.health = horn2.weight;
-                horn2.muscleContent = horn2.weight * (random.Next(8, 12) / 10);
-                horn2.fatContent = horn2.weight * (random.Next(8, 12) / 10);
-                horn2.isBleeding = false;
-                horn2.isCooked = false;
-                horn2.isUnclean = false;
+                horn2.specialProperties["weight"] = (4 + random.Next(-2, 2)).ToString();
+                horn2.specialProperties["health"] = horn2.specialProperties["weight"];
+                horn2.specialProperties["isBleeding"] = "FALSE";
+                horn2.specialProperties["isCooked"] = "FALSE";
+                horn2.specialProperties["isUnclean"] = "FALSE";
                 #endregion
 
                 head.AddChild(horn1);
@@ -185,12 +178,11 @@ namespace CommandSurvivalAdventure.World.Creatures
         {
             base.Update();
 
-            
-            // If dead, don't do update
-            if(isDeceased)
+            #region If dead, die
+            if (isDeceased)
                 return;
             // If out of health, die
-            if (head.health <= 0 || body.health <= 0)
+            if (float.Parse(body.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) <= 0f || float.Parse(head.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) <= 0f)
             {
                 isDeceased = true;
                 // Create a message entailing our action and send it to nearby players
@@ -206,7 +198,9 @@ namespace CommandSurvivalAdventure.World.Creatures
                         // Send an informational RPC to them letting them know
                         attachedApplication.server.SendRPC(message, playerEntry.Key);
                 }
+                return;
             }
+            #endregion
 
             #region Look around for threats
 
@@ -424,9 +418,152 @@ namespace CommandSurvivalAdventure.World.Creatures
                 }
                 else if (AIState == AIStates.ATTACKING)
                 {
+                    // TODO: Add a decision tree where the goat decides whether or not to attack based on it's own health, whether or not it has horns, and if it weighs enough to stand a chance to fight
 
+                    // If we're not currently in the middle of another action, attack!
+                    if(!currentlyInTheMiddleOfPerformingAction)
+                    {
+                        // Set the bool that we are currently in the middle of an action
+                        currentlyInTheMiddleOfPerformingAction = true;
+
+                        #region Notify everyone in the chunk
+                        // Create a message entailing our action and send it to nearby players
+                        Support.Networking.RPCs.RPCSay messageToEveryoneInChunk = new Support.Networking.RPCs.RPCSay();
+
+                        // If we are fighting a player, send a message to the player being attacked
+                        if (gameObjectKnownToBeHostile.specialProperties.ContainsKey("isPlayer"))
+                        {
+                            Support.Networking.RPCs.RPCSay messageForAttacking = new Support.Networking.RPCs.RPCSay();
+                            messageForAttacking.arguments.Add("The " + identifier.fullName + " charges at you! It will hit you in " + speed.ToString() + " seconds!");
+                            attachedApplication.server.SendRPC(messageForAttacking, gameObjectKnownToBeHostile.identifier.name);
+
+                            // Build out the message to everyone else
+                            messageToEveryoneInChunk.arguments.Add("A " + identifier.fullName + " charges at " + gameObjectKnownToBeHostile.identifier.name + "!");
+                            // Get the other nearby players to notify them our action
+                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                            {
+                                // If this player is in our chunk
+                                if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Value.controlledGameObject.identifier.name != gameObjectKnownToBeHostile.identifier.name)
+                                    // Send an informational RPC to them letting them know
+                                    attachedApplication.server.SendRPC(messageToEveryoneInChunk, playerEntry.Key);
+                            }
+                        }
+                        // Otherwise, we are not fighting another player, so we can format the message differently
+                        else
+                        {
+                            messageToEveryoneInChunk.arguments.Add("A " + identifier.fullName + " charges at " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + gameObjectKnownToBeHostile.identifier.fullName);
+
+                            // Get the other nearby players to notify them our action
+                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                            {
+                                // If this player is in our chunk
+                                if (playerEntry.Value.controlledGameObject.position == position)
+                                    // Send an informational RPC to them letting them know
+                                    attachedApplication.server.SendRPC(messageToEveryoneInChunk, playerEntry.Key);
+                            }
+                        }
+                        #endregion
+
+                        // Create a new thread where we wait for a bit, then impact the hostile object and do damage
+                        new Thread(() =>
+                        {
+                            Thread.CurrentThread.IsBackground = true; 
+                            // Wait for the set amount of time based on how fast the goat is
+                            Thread.Sleep((int)(speed * 1000f));
+
+                            // Check if the hostile object is still there, because they might have fled
+                            // TODO: For some non peaceful animals, they should go into a pursuit state and chase down the hostile.
+                            if(gameObjectKnownToBeHostile.position != position || gameObjectKnownToBeHostile.specialProperties["isDeceased"] == "TRUE")
+                            {
+                                AIState = AIStates.HUNGRY;
+                                currentlyInTheMiddleOfPerformingAction = false;
+                            }
+                            else
+                            {
+                                // Calculate damage done to hostile object
+                                float damageDealt = weight * speed * 0.10f;
+                                // If we have horns, deal 2x more damage + bleeding effect, which will be calculated in the OnStrikeThisGameObjectWithGameObject function
+                                if (FindChildrenWithName("horn").Count > 0)
+                                {
+                                    damageDealt *= 2;
+                                    // Deal damage to the hostile object with each horn
+                                    foreach (GameObject horn in FindChildrenWithName("horn"))
+                                    {
+                                        gameObjectKnownToBeHostile.OnStrikeThisGameObjectWithGameObject(this, horn, damageDealt);
+                                    }
+                                }
+                                // Otherwise, ram into the hostile object and do blunt force damage with whole body
+                                else
+                                {
+                                    gameObjectKnownToBeHostile.OnStrikeThisGameObjectWithGameObject(this, this, damageDealt);
+                                }
+                                
+
+                                #region Notify everyone in the chunk
+                                // Create a message entailing our action and send it to nearby players
+                                Support.Networking.RPCs.RPCSay messageForAttacking = new Support.Networking.RPCs.RPCSay();
+                                Support.Networking.RPCs.RPCSay messageToEveryoneElseInChunk = new Support.Networking.RPCs.RPCSay();
+
+                                // If we are fighting a player, send a message to the player being attacked
+                                if (gameObjectKnownToBeHostile.specialProperties.ContainsKey("isPlayer"))
+                                {
+                                    // Change the message based on if we have horns or not
+                                    if (FindChildrenWithName("horn").Count > 0)
+                                    {
+                                        messageForAttacking.arguments.Add("The " + identifier.fullName + " rammed into you and gored you with it's horns!");
+                                        // Build out the message to everyone else
+                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + gameObjectKnownToBeHostile.identifier.name + " and gored them with it's horns!");
+                                    }
+                                    else
+                                    {
+                                        messageForAttacking.arguments.Add("The " + identifier.fullName + " rammed into you!");
+                                        // Build out the message to everyone else
+                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + gameObjectKnownToBeHostile.identifier.name + "!");
+                                    }
+                                    // Send the message to the player being attacked
+                                    attachedApplication.server.SendRPC(messageForAttacking, gameObjectKnownToBeHostile.identifier.name);
+
+
+                                    // Get the other nearby players to notify them our action
+                                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                                    {
+                                        // If this player is in our chunk
+                                        if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Value.controlledGameObject.identifier.name != gameObjectKnownToBeHostile.identifier.name)
+                                            // Send an informational RPC to them letting them know
+                                            attachedApplication.server.SendRPC(messageToEveryoneElseInChunk, playerEntry.Key);
+                                    }
+                                }
+                                // Otherwise, we are not fighting another player, so we can format the message differently
+                                else
+                                {
+                                    // Change the message based on if we have horns or not
+                                    if (FindChildrenWithName("horn").Count > 0)
+                                    {
+                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + gameObjectKnownToBeHostile.identifier.fullName + " and gored it with it's horns!");
+                                    }
+                                    else
+                                    {
+                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + gameObjectKnownToBeHostile.identifier.fullName + "!");
+                                    }
+
+                                    // Get the other nearby players to notify them our action
+                                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+                                    {
+                                        // If this player is in our chunk
+                                        if (playerEntry.Value.controlledGameObject.position == position)
+                                            // Send an informational RPC to them letting them know
+                                            attachedApplication.server.SendRPC(messageToEveryoneElseInChunk, playerEntry.Key);
+                                    }
+                                }
+                                #endregion
+
+                                // Turn off the bool that says we are currently in the middle of an action
+                                currentlyInTheMiddleOfPerformingAction = false;
+                            }   
+                        }).Start();
+                    }
                 }
-                    break;
+                break;
             }
             #endregion
         }
@@ -434,15 +571,56 @@ namespace CommandSurvivalAdventure.World.Creatures
         {
             // Add the enemy to our percieved threats automatically if they do something aggressive
             gameObjectsPercievedAsThreat.Add(whoIsStriking);
+            // TODO: Set this up so creatures can handle fighting multiple hostiles
+            gameObjectKnownToBeHostile = whoIsStriking;
+            // If the goat was sleeping, it's awake now!
+            identifier.descriptiveAdjectives.Remove("sleeping");
             // Go into attacking state
             AIState = AIStates.ATTACKING;
             // Forward the damage to the body, since when someone hits the goat, we will assume they hit the body
-            body.health -= howMuchDamage;
-                       
+            body.specialProperties["health"] = (float.Parse(body.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) - howMuchDamage).ToString();
             // Create a message entailing our action and send it to nearby players
             Support.Networking.RPCs.RPCSay message = new Support.Networking.RPCs.RPCSay();
-            message.arguments.Add("The " + identifier.fullName + " now has " + body.health.ToString() + " body health!");
+            // Add bleeding effect if object being used to strike is sharp
+            if (whatIsBeingUsedToStrike.identifier.descriptiveAdjectives.Contains("sharp"))
+            {
+                body.specialProperties["isBleeding"] = "TRUE";
+                message.arguments.Add("The " + identifier.fullName + " now has " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!");
+            }
+            else
+                message.arguments.Add("The " + identifier.fullName + " now has " + body.specialProperties["health"] + " body health!");
+           
+            // Get the nearby players to notify them our action
+            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+            {
+                // If this player is in our chunk
+                if (playerEntry.Value.controlledGameObject.position == position)
+                    // Send an informational RPC to them letting them know
+                    attachedApplication.server.SendRPC(message, playerEntry.Key);
+            }
+        }
 
+        // TODO: Right now, when the head is struck nothing happens. This will need fixed and this function below called when it is struck
+        public void OnStrikeHeadWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike, float howMuchDamage)
+        {
+            // Add the enemy to our percieved threats automatically if they do something aggressive
+            gameObjectsPercievedAsThreat.Add(whoIsStriking);
+            // TODO: Set this up so creatures can handle fighting multiple hostiles
+            gameObjectKnownToBeHostile = whoIsStriking;
+            // Go into attacking state
+            AIState = AIStates.ATTACKING;
+            // Forward the damage to the head
+            head.specialProperties["health"] = (float.Parse(head.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) - howMuchDamage).ToString();
+            // Create a message entailing our action and send it to nearby players
+            Support.Networking.RPCs.RPCSay message = new Support.Networking.RPCs.RPCSay();           
+            // Add bleeding effect if object being used to strike is sharp
+            if (whatIsBeingUsedToStrike.identifier.descriptiveAdjectives.Contains("sharp"))
+            {
+                head.specialProperties["isBleeding"] = "TRUE";
+                message.arguments.Add("The " + identifier.fullName + " now has " + head.specialProperties["health"] + " head health! The flesh is pierced and bleeding!");
+            }               
+            else
+                message.arguments.Add("The " + identifier.fullName + " now has " + head.specialProperties["health"] + " head health!");
             // Get the nearby players to notify them our action
             foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
             {

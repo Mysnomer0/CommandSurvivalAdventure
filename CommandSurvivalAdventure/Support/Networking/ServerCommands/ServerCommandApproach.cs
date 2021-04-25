@@ -13,6 +13,14 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfObjectToApproach>
 
+            // If dead
+            if(sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
             // Find the gameObject we are going to approach
 
             // Check if name is a player's name

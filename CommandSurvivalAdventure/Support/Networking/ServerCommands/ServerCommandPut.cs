@@ -12,6 +12,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfObject> <nameOfContainer>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // The object itself
             World.GameObject objectToPut = server.world.FindFirstGameObject(givenArguments[0], sender.position);
             // The container to put the object into

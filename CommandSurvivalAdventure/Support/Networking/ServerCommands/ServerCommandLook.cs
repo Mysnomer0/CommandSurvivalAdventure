@@ -12,8 +12,17 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <typeOfObjectToLookFor>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // If the person said "look at", get the following string and go find all objects with that string in it's name.
-            if(givenArguments.Count == 2)
+            if (givenArguments.Count == 2)
             {
                 if(givenArguments[0] == "at")
                 {

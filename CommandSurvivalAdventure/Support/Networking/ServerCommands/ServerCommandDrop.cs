@@ -12,6 +12,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfObjectToDrop>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Get the hashset of the utilizable parts of the player, like the hands, tail, etc
             List<World.GameObject> utilizableParts = sender.FindChildrenWithSpecialProperty("isUtilizable");
             // The gameObject that we will drop the object from, which will be determined

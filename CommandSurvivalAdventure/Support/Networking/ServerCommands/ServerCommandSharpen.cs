@@ -13,6 +13,15 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
         {
             // ARGS: <nameOfObjectToSharpen> <nameOfObjectToSharpenWith>
 
+            // If dead
+            if (sender.specialProperties["isDeceased"] == "TRUE")
+            {
+                RPCs.RPCSay failure = new RPCs.RPCSay();
+                failure.arguments.Add("You are deceased.");
+                server.SendRPC(failure, nameOfSender);
+                return;
+            }
+
             // Get the object to sharpen
             World.GameObject objectToSharpen = server.world.FindFirstGameObject(givenArguments[0], sender.position);
             // Get the object to sharpen with

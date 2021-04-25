@@ -26,7 +26,7 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
             else
             {
                 // Create the creature to play as
-                World.Creatures.CreatureMinotaur newPlayer = new World.Creatures.CreatureMinotaur();
+                World.Creatures.CreatureHuman newPlayer = new World.Creatures.CreatureHuman(server.attachedApplication);
                 newPlayer.specialProperties.Add("isPlayer", "");
                 newPlayer.Generate(server.world.seed);
                 // Add the creature into the spawn chunk.  This method may change later, depending on how we want to spawn in stuff.
