@@ -76,27 +76,12 @@ namespace CommandSurvivalAdventure.Support.Networking.ServerCommands
                 sender.gameObjectsInProximity.Add(gameObjectToApproach);
                 gameObjectToApproach.gameObjectsInProximity.Add(sender);
                 gameObjectToApproach.OnEnterProximity(sender);
-
-                string response = "You approached the " + gameObjectToApproach.identifier.fullName + ".";
-                // Send info back to the sender
-                RPCs.RPCSay rPC = new RPCs.RPCSay();
-                rPC.arguments.Add(response);
-                server.SendRPC(rPC, nameOfSender);
-
-                // Notify everyone in the chunk
-                foreach (World.GameObject gameObject in server.world.GetChunkOrGenerate(sender.position).children)
-                {
-                    if (gameObject.specialProperties.ContainsKey("isPlayer") && gameObject.identifier.name != sender.identifier.name)
-                    {
-                        // Send a message to this player saying that we left the chunk
-                        RPCs.RPCSay newRPC = new RPCs.RPCSay();
-                        if (gameObjectToApproach.specialProperties.ContainsKey("isPlayer"))
-                            newRPC.arguments.Add(nameOfSender + " approached " + gameObjectToApproach.identifier.fullName + ".");
-                        else
-                            newRPC.arguments.Add(nameOfSender + " approached " + Processing.Describer.GetArticle(gameObjectToApproach.identifier.fullName) + gameObjectToApproach.identifier.fullName + ".");
-                        server.SendRPC(newRPC, gameObject.identifier.name);
-                    }
-                }
+                // Notify every, and modify the message a little if we are approaching a player
+                if (gameObjectToApproach.specialProperties.ContainsKey("isPlayer"))
+                    server.world.SendMessageToPosition("You approached a " + gameObjectToApproach.identifier.fullName + ".", nameOfSender, nameOfSender + " approached " + gameObjectToApproach.identifier.fullName + ".", sender.position);
+                else
+                    server.world.SendMessageToPosition("You approached the " + gameObjectToApproach.identifier.fullName + ".", nameOfSender, nameOfSender + " approached " + Processing.Describer.GetArticle(gameObjectToApproach.identifier.fullName) + " " + gameObjectToApproach.identifier.fullName + ".", sender.position);
+                
             }).Start();                     
         }
         public ServerCommandApproach(string nameOfSender)

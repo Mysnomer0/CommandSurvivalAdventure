@@ -21,11 +21,13 @@ namespace CommandSurvivalAdventure.World.Biomes
             chunkToPopulate.windSpeed = (normalWindSpeed * (random.Next(2, 8) / 5));
             chunkToPopulate.temperature = (normalTemperature * (random.Next(2, 4) / 3));
 
-            // TODO: Make creature generation more dynamic
-            Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
-            newGoat.identifier.descriptiveAdjectives.Add("fat");
-            newGoat.identifier.descriptiveAdjectives.Add("wild");
-            chunkToPopulate.AddChild(newGoat);
+            if (random.Next(0, 5) == 0)
+            {
+                Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
+                newGoat.identifier.descriptiveAdjectives.Add("fat");
+                newGoat.identifier.descriptiveAdjectives.Add("wild");
+                chunkToPopulate.AddChild(newGoat);
+            }
 
             #region Add plants
             // the amont of Tall Fescues

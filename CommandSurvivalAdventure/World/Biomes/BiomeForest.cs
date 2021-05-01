@@ -21,6 +21,13 @@ namespace CommandSurvivalAdventure.World.Biomes
             chunkToPopulate.windSpeed = (normalWindSpeed * (random.Next(2, 8) / 5));
             chunkToPopulate.temperature = (normalTemperature * (random.Next(2, 4) / 3));
 
+            if(random.Next(0, 10) == 0)
+            {
+                Creatures.CreatureBoar newBoar = new Creatures.CreatureBoar(chunkToPopulate.attachedApplication);
+                newBoar.identifier.descriptiveAdjectives.Add("giant");
+                newBoar.identifier.descriptiveAdjectives.Add("menacing");
+                chunkToPopulate.AddChild(newBoar);
+            }
             #region Add minerals
             // The amount of earth
             int amontOfEarth = random.Next(100, 200);

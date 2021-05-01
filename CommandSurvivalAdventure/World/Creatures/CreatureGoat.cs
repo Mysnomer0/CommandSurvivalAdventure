@@ -34,8 +34,10 @@ namespace CommandSurvivalAdventure.World.Creatures
 
 
             // Generate the stats            
-            speed = 4f + (float)random.NextDouble() * 2f;
+            speed = 2f + (float)random.NextDouble() * 0.5f;
             specialProperties.Add("stance", "STANDING");
+            specialProperties.Add("isDeceased", "FALSE");
+            specialProperties.Add("weight", weight.ToString());
             /*
             specialProperties.Add("blocking", "NULL");
             specialProperties.Add("isDeceased", "NULL");
@@ -179,27 +181,22 @@ namespace CommandSurvivalAdventure.World.Creatures
             base.Update();
 
             #region If dead, die
-            if (isDeceased)
+            if (specialProperties["isDeceased"] == "TRUE")
                 return;
             // If out of health, die
             if (float.Parse(body.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) <= 0f || float.Parse(head.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) <= 0f)
             {
-                isDeceased = true;
-                // Create a message entailing our action and send it to nearby players
-                Support.Networking.RPCs.RPCSay message = new Support.Networking.RPCs.RPCSay();
-                message.arguments.Add("The " + identifier.fullName + " falls to the ground, dead!");
+                specialProperties["isDeceased"] = "TRUE";
                 identifier.descriptiveAdjectives.Add("dead");
                 specialProperties["stance"] = StanceToString(Stances.LAYING);
-                // Get the nearby players to notify them our action
-                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                {
-                    // If this player is in our chunk
-                    if (playerEntry.Value.controlledGameObject.position == position)
-                        // Send an informational RPC to them letting them know
-                        attachedApplication.server.SendRPC(message, playerEntry.Key);
-                }
+                // Notify everyone
+                attachedApplication.server.world.SendMessageToPosition("The " + identifier.fullName + " falls to the ground, dead!", position);
                 return;
             }
+            #endregion
+
+            #region Update variables
+            specialProperties["weight"] = weight.ToString();
             #endregion
 
             #region Look around for threats
@@ -245,18 +242,8 @@ namespace CommandSurvivalAdventure.World.Creatures
                         {
                             // Change the stance to laying down
                             specialProperties["stance"] = StanceToString(Stances.LAYING);
-                            // Create a message entailing our action and send it to nearby players
-                            Support.Networking.RPCs.RPCSay sleepMessage = new Support.Networking.RPCs.RPCSay();
-                            sleepMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " lays down to sleep.");
-
-                            // Get the nearby players to notify them our action
-                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                            {
-                                // If this player is in our chunk
-                                if (playerEntry.Value.controlledGameObject.position == position)
-                                    // Send an informational RPC to them letting them know
-                                    attachedApplication.server.SendRPC(sleepMessage, playerEntry.Key);
-                            }
+                            // Notify everyone
+                            attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " lays down to sleep.", position);
                             // Go into the sleeping state
                             AIState = AIStates.SLEEPING;
                             // Set the sleeping timer
@@ -268,34 +255,14 @@ namespace CommandSurvivalAdventure.World.Creatures
                         // Every so often graze on the grass
                         else if (random.Next(0, 60) == 0)
                         {
-                            // Create a message entailing our action and send it to nearby players
-                            Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                            actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " grazes on the grass...");
-
-                            // Get the nearby players to notify them our action
-                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                            {
-                                // If this player is in our chunk
-                                if (playerEntry.Value.controlledGameObject.position == position)
-                                    // Send an informational RPC to them letting them know
-                                    attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                            }
+                            // Notify everyone
+                            attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " grazes on the grass...", position);
                         }
                         // Goat bleating
                         else if (random.Next(1, 60) == 1)
                         {
-                            // Create a message entailing our action and send it to nearby players
-                            Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                            actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " bleats softly...");
-
-                            // Get the nearby players to notify them our action
-                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                            {
-                                // If this player is in our chunk
-                                if (playerEntry.Value.controlledGameObject.position == position)
-                                    // Send an informational RPC to them letting them know
-                                    attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                            }
+                            // Notify everyone
+                            attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " bleats softly...", position);
                         }
                         // Goat looks at random nearby player
                         else if (random.Next(1, 60) == 1)
@@ -316,23 +283,11 @@ namespace CommandSurvivalAdventure.World.Creatures
                             {
                                 // Choose a random person nearby to look at
                                 Core.Player playerToLookAt = nearbyPlayers.ToArray()[random.Next(0, nearbyPlayers.Count)];
-                                // Create a message entailing our action and send it to nearby players
-                                Support.Networking.RPCs.RPCSay lookAtYouMessage = new Support.Networking.RPCs.RPCSay();
-                                lookAtYouMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at you cautiously...");
-                                Support.Networking.RPCs.RPCSay lookAtPlayerMessage = new Support.Networking.RPCs.RPCSay();
-                                lookAtPlayerMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at " + playerToLookAt.name + " cautiously...");
-
-                                // Get the nearby players to notify them our action
-                                foreach (Core.Player player in nearbyPlayers)
-                                {
-                                    // If this player is in our chunk
-                                    if (player == playerToLookAt)
-                                        // Send an informational RPC to them letting them know
-                                        attachedApplication.server.SendRPC(lookAtYouMessage, player.name);
-                                    else
-                                        // Send an informational RPC to them letting them know
-                                        attachedApplication.server.SendRPC(lookAtPlayerMessage, player.name);
-                                }
+                                attachedApplication.server.world.SendMessageToPosition(
+                                    Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at you cautiously...",
+                                    playerToLookAt.name,
+                                    Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " looks at " + playerToLookAt.name + " cautiously...",
+                                    position);               
                             }
                         }
                         // Goat panting from the heat
@@ -340,18 +295,7 @@ namespace CommandSurvivalAdventure.World.Creatures
                         {
                             if (attachedApplication.server.world.GetChunk(position).temperature > 80)
                             {
-                                // Create a message entailing our action and send it to nearby players
-                                Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                                actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " pants from the heat...");
-
-                                // Get the nearby players to notify them our action
-                                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                                {
-                                    // If this player is in our chunk
-                                    if (playerEntry.Value.controlledGameObject.position == position)
-                                        // Send an informational RPC to them letting them know
-                                        attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                                }
+                                attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " pants from the heat...", position);
                             }
                         }
                     }
@@ -367,24 +311,10 @@ namespace CommandSurvivalAdventure.World.Creatures
                             desiredDirection = Direction.IntToDirection(random.Next(0, 7));
                             newPosition = new Position(position.x + desiredDirection.x, position.y + desiredDirection.y, position.z + desiredDirection.z);
                         }
-
-                        // Create a message entailing our action and send it to nearby players
-                        Support.Networking.RPCs.RPCSay leavingMessage = new Support.Networking.RPCs.RPCSay();
-                        leavingMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots " + Direction.DirectionToString(desiredDirection) + " in search of food...");
-                        Support.Networking.RPCs.RPCSay arrivingMessage = new Support.Networking.RPCs.RPCSay();
-                        arrivingMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots along from the " + Direction.DirectionToString(Direction.GetOpposite(desiredDirection)) + " in search of food...");
-                        // Get the nearby players to notify them our action
-                        foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                        {
-                            // If this player is in our chunk
-                            if (playerEntry.Value.controlledGameObject.position == position)
-                                // Send an informational RPC to them letting them know
-                                attachedApplication.server.SendRPC(leavingMessage, playerEntry.Key);
-                            // If this player is in the destination chunk
-                            if (playerEntry.Value.controlledGameObject.position == newPosition)
-                                // Send an informational RPC to them letting them know
-                                attachedApplication.server.SendRPC(arrivingMessage, playerEntry.Key);
-                        }
+                        // Notify everyone in this chunk and destination chunk
+                        attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots " + Direction.DirectionToString(desiredDirection) + " in search of food...", position);
+                        attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " trots along from the " + Direction.DirectionToString(Direction.GetOpposite(desiredDirection)) + " in search of food...", newPosition);
+                        // Move the object
                         attachedApplication.server.world.MoveObject(ID, newPosition);
                     }
                 }
@@ -401,18 +331,8 @@ namespace CommandSurvivalAdventure.World.Creatures
                         identifier.descriptiveAdjectives.Remove("sleeping");
                         // Go back to being hungry
                         AIState = AIStates.HUNGRY;
-                        // Create a message entailing our action and send it to nearby players
-                        Support.Networking.RPCs.RPCSay actionMessage = new Support.Networking.RPCs.RPCSay();
-                        actionMessage.arguments.Add(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " wakes from it's slumber and stands up.");
-
-                        // Get the nearby players to notify them our action
-                        foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                        {
-                            // If this player is in our chunk
-                            if (playerEntry.Value.controlledGameObject.position == position)
-                                // Send an informational RPC to them letting them know
-                                attachedApplication.server.SendRPC(actionMessage, playerEntry.Key);
-                        }
+                        // Notify everyone
+                        attachedApplication.server.world.SendMessageToPosition(Processing.Describer.GetArticle(identifier.fullName).ToUpper() + " " + identifier.fullName + " wakes from it's slumber and stands up.", position);
                         break;
                     }
                 }
@@ -426,50 +346,25 @@ namespace CommandSurvivalAdventure.World.Creatures
                         // Set the bool that we are currently in the middle of an action
                         currentlyInTheMiddleOfPerformingAction = true;
 
-                        #region Notify everyone in the chunk
-                        // Create a message entailing our action and send it to nearby players
-                        Support.Networking.RPCs.RPCSay messageToEveryoneInChunk = new Support.Networking.RPCs.RPCSay();
+                        // Notify everyone in the chunk
 
                         // If we are fighting a player, send a message to the player being attacked
                         if (gameObjectKnownToBeHostile.specialProperties.ContainsKey("isPlayer"))
                         {
-                            Support.Networking.RPCs.RPCSay messageForAttacking = new Support.Networking.RPCs.RPCSay();
-                            messageForAttacking.arguments.Add("The " + identifier.fullName + " charges at you! It will hit you in " + speed.ToString() + " seconds!");
-                            attachedApplication.server.SendRPC(messageForAttacking, gameObjectKnownToBeHostile.identifier.name);
-
-                            // Build out the message to everyone else
-                            messageToEveryoneInChunk.arguments.Add("A " + identifier.fullName + " charges at " + gameObjectKnownToBeHostile.identifier.name + "!");
-                            // Get the other nearby players to notify them our action
-                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                            {
-                                // If this player is in our chunk
-                                if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Value.controlledGameObject.identifier.name != gameObjectKnownToBeHostile.identifier.name)
-                                    // Send an informational RPC to them letting them know
-                                    attachedApplication.server.SendRPC(messageToEveryoneInChunk, playerEntry.Key);
-                            }
+                            attachedApplication.server.world.SendMessageToPosition("The " + identifier.fullName + " charges at you! It will hit you in " + (1 / speed * 20f).ToString() + " seconds!", gameObjectKnownToBeHostile.identifier.name, "A " + identifier.fullName + " charges at " + gameObjectKnownToBeHostile.identifier.name + "!", position);
                         }
                         // Otherwise, we are not fighting another player, so we can format the message differently
                         else
                         {
-                            messageToEveryoneInChunk.arguments.Add("A " + identifier.fullName + " charges at " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + gameObjectKnownToBeHostile.identifier.fullName);
-
-                            // Get the other nearby players to notify them our action
-                            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                            {
-                                // If this player is in our chunk
-                                if (playerEntry.Value.controlledGameObject.position == position)
-                                    // Send an informational RPC to them letting them know
-                                    attachedApplication.server.SendRPC(messageToEveryoneInChunk, playerEntry.Key);
-                            }
+                            attachedApplication.server.world.SendMessageToPosition("A " + identifier.fullName + " charges at " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + " " + gameObjectKnownToBeHostile.identifier.fullName, position);
                         }
-                        #endregion
 
                         // Create a new thread where we wait for a bit, then impact the hostile object and do damage
                         new Thread(() =>
                         {
                             Thread.CurrentThread.IsBackground = true; 
                             // Wait for the set amount of time based on how fast the goat is
-                            Thread.Sleep((int)(speed * 1000f));
+                            Thread.Sleep((int)(1/speed * 20f * 1000f));
 
                             // Check if the hostile object is still there, because they might have fled
                             // TODO: For some non peaceful animals, they should go into a pursuit state and chase down the hostile.
@@ -480,83 +375,56 @@ namespace CommandSurvivalAdventure.World.Creatures
                             }
                             else
                             {
+                                // We are now in the hostile object's proximity
+                                gameObjectsInProximity.Add(gameObjectKnownToBeHostile);
+                                gameObjectKnownToBeHostile.gameObjectsInProximity.Add(this);
+                                gameObjectKnownToBeHostile.OnEnterProximity(this);
                                 // Calculate damage done to hostile object
-                                float damageDealt = weight * speed * 0.10f;
+                                float damageDealt = weight * speed * 0.01f;
                                 // If we have horns, deal 2x more damage + bleeding effect, which will be calculated in the OnStrikeThisGameObjectWithGameObject function
                                 if (FindChildrenWithName("horn").Count > 0)
                                 {
-                                    damageDealt *= 2;
-                                    // Deal damage to the hostile object with each horn
-                                    foreach (GameObject horn in FindChildrenWithName("horn"))
+                                    damageDealt *= 2 * FindChildrenWithName("horn").Count;
+
+                                    gameObjectKnownToBeHostile.OnStrikeThisGameObjectWithGameObject(this, FindChildrenWithName("horn").First(), damageDealt);
+                                    // If we are fighting a player, send a message to the player being attacked
+                                    if (gameObjectKnownToBeHostile.specialProperties.ContainsKey("isPlayer"))
                                     {
-                                        gameObjectKnownToBeHostile.OnStrikeThisGameObjectWithGameObject(this, horn, damageDealt);
+                                        attachedApplication.server.world.SendMessageToPosition(
+                                        "The " + identifier.fullName + " rammed into you and gored you with it's horns, dealing " + damageDealt.ToString() + " damage!",
+                                        gameObjectKnownToBeHostile.identifier.name,
+                                        "A " + identifier.fullName + " rammed into " + gameObjectKnownToBeHostile.identifier.name + " and gored them with it's horns!",
+                                        position);
                                     }
+                                    else
+                                    {
+                                        attachedApplication.server.world.SendMessageToPosition(
+                                        "A " + identifier.fullName + " rammed into " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + " " + gameObjectKnownToBeHostile.identifier.fullName + " and gored it with it's horns!",                                       
+                                        position);
+                                    }
+                                    
                                 }
                                 // Otherwise, ram into the hostile object and do blunt force damage with whole body
                                 else
                                 {
                                     gameObjectKnownToBeHostile.OnStrikeThisGameObjectWithGameObject(this, this, damageDealt);
+                                    // If we are fighting a player, send a message to the player being attacked
+                                    if (gameObjectKnownToBeHostile.specialProperties.ContainsKey("isPlayer"))
+                                    {
+                                        attachedApplication.server.world.SendMessageToPosition(
+                                        "The " + identifier.fullName + " rammed into you, dealing " + damageDealt.ToString() + " damage!",
+                                        gameObjectKnownToBeHostile.identifier.name,
+                                        "A " + identifier.fullName + " rammed into " + gameObjectKnownToBeHostile.identifier.name + "!",
+                                        position);
+                                    }
+                                    else
+                                    {
+                                        attachedApplication.server.world.SendMessageToPosition(
+                                        "A " + identifier.fullName + " rammed into " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + " " + gameObjectKnownToBeHostile.identifier.fullName + "!",
+                                        position);        
+                                    }
                                 }
                                 
-
-                                #region Notify everyone in the chunk
-                                // Create a message entailing our action and send it to nearby players
-                                Support.Networking.RPCs.RPCSay messageForAttacking = new Support.Networking.RPCs.RPCSay();
-                                Support.Networking.RPCs.RPCSay messageToEveryoneElseInChunk = new Support.Networking.RPCs.RPCSay();
-
-                                // If we are fighting a player, send a message to the player being attacked
-                                if (gameObjectKnownToBeHostile.specialProperties.ContainsKey("isPlayer"))
-                                {
-                                    // Change the message based on if we have horns or not
-                                    if (FindChildrenWithName("horn").Count > 0)
-                                    {
-                                        messageForAttacking.arguments.Add("The " + identifier.fullName + " rammed into you and gored you with it's horns!");
-                                        // Build out the message to everyone else
-                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + gameObjectKnownToBeHostile.identifier.name + " and gored them with it's horns!");
-                                    }
-                                    else
-                                    {
-                                        messageForAttacking.arguments.Add("The " + identifier.fullName + " rammed into you!");
-                                        // Build out the message to everyone else
-                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + gameObjectKnownToBeHostile.identifier.name + "!");
-                                    }
-                                    // Send the message to the player being attacked
-                                    attachedApplication.server.SendRPC(messageForAttacking, gameObjectKnownToBeHostile.identifier.name);
-
-
-                                    // Get the other nearby players to notify them our action
-                                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                                    {
-                                        // If this player is in our chunk
-                                        if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Value.controlledGameObject.identifier.name != gameObjectKnownToBeHostile.identifier.name)
-                                            // Send an informational RPC to them letting them know
-                                            attachedApplication.server.SendRPC(messageToEveryoneElseInChunk, playerEntry.Key);
-                                    }
-                                }
-                                // Otherwise, we are not fighting another player, so we can format the message differently
-                                else
-                                {
-                                    // Change the message based on if we have horns or not
-                                    if (FindChildrenWithName("horn").Count > 0)
-                                    {
-                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + gameObjectKnownToBeHostile.identifier.fullName + " and gored it with it's horns!");
-                                    }
-                                    else
-                                    {
-                                        messageToEveryoneElseInChunk.arguments.Add("A " + identifier.fullName + " rammed into " + Processing.Describer.GetArticle(gameObjectKnownToBeHostile.identifier.fullName) + gameObjectKnownToBeHostile.identifier.fullName + "!");
-                                    }
-
-                                    // Get the other nearby players to notify them our action
-                                    foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                                    {
-                                        // If this player is in our chunk
-                                        if (playerEntry.Value.controlledGameObject.position == position)
-                                            // Send an informational RPC to them letting them know
-                                            attachedApplication.server.SendRPC(messageToEveryoneElseInChunk, playerEntry.Key);
-                                    }
-                                }
-                                #endregion
-
                                 // Turn off the bool that says we are currently in the middle of an action
                                 currentlyInTheMiddleOfPerformingAction = false;
                             }   
@@ -579,25 +447,18 @@ namespace CommandSurvivalAdventure.World.Creatures
             AIState = AIStates.ATTACKING;
             // Forward the damage to the body, since when someone hits the goat, we will assume they hit the body
             body.specialProperties["health"] = (float.Parse(body.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) - howMuchDamage).ToString();
-            // Create a message entailing our action and send it to nearby players
-            Support.Networking.RPCs.RPCSay message = new Support.Networking.RPCs.RPCSay();
             // Add bleeding effect if object being used to strike is sharp
             if (whatIsBeingUsedToStrike.identifier.descriptiveAdjectives.Contains("sharp"))
             {
                 body.specialProperties["isBleeding"] = "TRUE";
-                message.arguments.Add("The " + identifier.fullName + " now has " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!");
+                // Notify everyone
+                attachedApplication.server.world.SendMessageToPosition(
+                    "The " + identifier.fullName + " now has " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!",
+                    position);
             }
             else
-                message.arguments.Add("The " + identifier.fullName + " now has " + body.specialProperties["health"] + " body health!");
-           
-            // Get the nearby players to notify them our action
-            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-            {
-                // If this player is in our chunk
-                if (playerEntry.Value.controlledGameObject.position == position)
-                    // Send an informational RPC to them letting them know
-                    attachedApplication.server.SendRPC(message, playerEntry.Key);
-            }
+                // Notify everyone
+                attachedApplication.server.world.SendMessageToPosition("The " + identifier.fullName + " now has " + body.specialProperties["health"] + " body health!", position);
         }
 
         // TODO: Right now, when the head is struck nothing happens. This will need fixed and this function below called when it is struck
@@ -618,17 +479,16 @@ namespace CommandSurvivalAdventure.World.Creatures
             {
                 head.specialProperties["isBleeding"] = "TRUE";
                 message.arguments.Add("The " + identifier.fullName + " now has " + head.specialProperties["health"] + " head health! The flesh is pierced and bleeding!");
+                // Notify everyone
+                attachedApplication.server.world.SendMessageToPosition(
+                    "The " + identifier.fullName + " now has " + head.specialProperties["health"] + " head health! The flesh is pierced and bleeding!",
+                    position);
             }               
             else
-                message.arguments.Add("The " + identifier.fullName + " now has " + head.specialProperties["health"] + " head health!");
-            // Get the nearby players to notify them our action
-            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-            {
-                // If this player is in our chunk
-                if (playerEntry.Value.controlledGameObject.position == position)
-                    // Send an informational RPC to them letting them know
-                    attachedApplication.server.SendRPC(message, playerEntry.Key);
-            }
+                // Notify everyone
+                attachedApplication.server.world.SendMessageToPosition(
+                    "The " + identifier.fullName + " now has " + head.specialProperties["health"] + " head health!",
+                    position);
         }
     }
 }

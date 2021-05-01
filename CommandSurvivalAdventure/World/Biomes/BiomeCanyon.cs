@@ -21,10 +21,13 @@ namespace CommandSurvivalAdventure.World.Biomes
             chunkToPopulate.windSpeed = (normalWindSpeed * (random.Next(2, 8) / 5));
             chunkToPopulate.temperature = (normalTemperature * (random.Next(2, 4) / 3));
 
-            Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
-            newGoat.identifier.descriptiveAdjectives.Add("wild");
-            newGoat.identifier.classifierAdjectives.Add("bearded");
-            chunkToPopulate.AddChild(newGoat);
+            if (random.Next(0, 10) == 0)
+            {
+                Creatures.CreatureGoat newGoat = new Creatures.CreatureGoat(chunkToPopulate.attachedApplication);
+                newGoat.identifier.descriptiveAdjectives.Add("wild");
+                newGoat.identifier.classifierAdjectives.Add("bearded");
+                chunkToPopulate.AddChild(newGoat);
+            }
 
             #region Add minerals
             // Decide whether to generate boulder

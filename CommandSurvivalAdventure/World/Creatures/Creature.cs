@@ -10,7 +10,7 @@ namespace CommandSurvivalAdventure.World
     {
         // The random generator for the creature to base actions and stats off of
         public Random random;
-        // The speed of the creature, lower is better
+        // The speed of the creature, higher is better
         public float speed;
         // The intelligence of the creature.  Higher is better
         public float intelligence;

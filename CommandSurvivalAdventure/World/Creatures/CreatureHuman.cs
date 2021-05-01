@@ -28,6 +28,7 @@ namespace CommandSurvivalAdventure.World.Creatures
             specialProperties.Add("strength", random.Next(60, 80).ToString());
             specialProperties.Add("reactionTime", (random.NextDouble() * 2.0f + 3f).ToString());
             specialProperties.Add("speed", (random.NextDouble() * 2.0f).ToString());
+            specialProperties.Add("weight", weight.ToString());
             // Generate the body parts of the human
 
             #region Right Hand
@@ -169,10 +170,17 @@ namespace CommandSurvivalAdventure.World.Creatures
                 return;
             // If out of health, do death function
             if (float.Parse(body.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) <= 0 || float.Parse(head.specialProperties["health"], System.Globalization.CultureInfo.InvariantCulture) <= 0)
-                OnDeath();
+            {
+                attachedApplication.server.world.SendMessageToPosition("You are deceased.", identifier.name, identifier.fullName + " is deceased.", position);
+                specialProperties["isDeceased"] = "TRUE";
+            }
+                
+            #region Update variables
+            specialProperties["weight"] = weight.ToString();
+            #endregion
 
         }
-        
+
         public override void OnStrikeThisGameObjectWithGameObject(GameObject whoIsStriking, GameObject whatIsBeingUsedToStrike, float howMuchDamage)
         {
             // Forward the damage to the body, since when someone hits the human, we will assume they hit the body
@@ -184,83 +192,22 @@ namespace CommandSurvivalAdventure.World.Creatures
             {
                 body.specialProperties["health"] = 0f.ToString();
                 specialProperties["isDeceased"] = "TRUE";
-                // Create a message entailing the damage done and send to player
-                Support.Networking.RPCs.RPCSay deathMessage = new Support.Networking.RPCs.RPCSay();
-                deathMessage.arguments.Add("You were struck down!");
-                // Create a message entailing our action and send it to nearby players
-                Support.Networking.RPCs.RPCSay deathMessageToEveryoneElse = new Support.Networking.RPCs.RPCSay();
-                deathMessageToEveryoneElse.arguments.Add(identifier.fullName + " was struck down!");
 
-                // Send message to person who died
-                attachedApplication.server.SendRPC(deathMessage, identifier.name);
-
-                // Get the nearby players to notify them our action
-                foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-                {
-                    // If this player is in our chunk
-                    //if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Key != identifier.name)
-                    if (playerEntry.Key != identifier.name)
-                        // Send an informational RPC to them letting them know
-                        attachedApplication.server.SendRPC(deathMessageToEveryoneElse, playerEntry.Key);
-                }
-                OnDeath();
+                attachedApplication.server.world.SendMessageToPosition("You were struck down, dead!", identifier.name, identifier.fullName + " was struck down, dead!", position);
             }
 
-            #region Notify everyone
-            // Create a message entailing the damage done and send to player
-            Support.Networking.RPCs.RPCSay messageToPlayer = new Support.Networking.RPCs.RPCSay();
+            // Notify everyone
 
-            // Create a message entailing our action and send it to nearby players
-            Support.Networking.RPCs.RPCSay messageToEveryoneElse = new Support.Networking.RPCs.RPCSay();
             // Add bleeding effect if object being used to strike is sharp
             if (whatIsBeingUsedToStrike.identifier.descriptiveAdjectives.Contains("sharp"))
             {
                 body.specialProperties["isBleeding"] = "TRUE";
-                messageToEveryoneElse.arguments.Add(identifier.fullName + " now has " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!");
-                messageToPlayer.arguments.Add("You now have " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!");
+                attachedApplication.server.world.SendMessageToPosition("You now have " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!", identifier.name, identifier.fullName + " now has " + body.specialProperties["health"] + " body health! The flesh is pierced and bleeding!", position);
             }
             else
             {
-                messageToEveryoneElse.arguments.Add(identifier.fullName + " now has " + body.specialProperties["health"] + " body health!");
-                messageToPlayer.arguments.Add("You now have " + body.specialProperties["health"] + " body health!");
+                attachedApplication.server.world.SendMessageToPosition("You now have " + body.specialProperties["health"] + " body health!", identifier.name, identifier.fullName + " now has " + body.specialProperties["health"] + " body health!", position);
             }
-            attachedApplication.server.SendRPC(messageToPlayer, identifier.name);
-
-            // Get the nearby players to notify them our action
-            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-            {
-                // If this player is in our chunk
-                if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Key != identifier.name)
-                    // Send an informational RPC to them letting them know
-                    attachedApplication.server.SendRPC(messageToEveryoneElse, playerEntry.Key);
-            }
-            #endregion
-
-        }
-
-        public void OnDeath()
-        {
-            #region Notify everyone
-            // Create a message entailing the damage done and send to player
-            Support.Networking.RPCs.RPCSay messageToPlayer = new Support.Networking.RPCs.RPCSay();
-            messageToPlayer.arguments.Add("You are deceased.");
-            // Create a message entailing our action and send it to nearby players
-            Support.Networking.RPCs.RPCSay messageToEveryoneElse = new Support.Networking.RPCs.RPCSay();
-            messageToEveryoneElse.arguments.Add(identifier.fullName + " is deceased.");
-            
-            // Send message to person who died
-            attachedApplication.server.SendRPC(messageToPlayer, identifier.name);
-
-            // Get the nearby players to notify them our action
-            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
-            {
-                // If this player is in our chunk
-                //if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Key != identifier.name)
-                if (playerEntry.Key != identifier.name)
-                    // Send an informational RPC to them letting them know
-                    attachedApplication.server.SendRPC(messageToEveryoneElse, playerEntry.Key);
-            }
-            #endregion
         }
     }
 }

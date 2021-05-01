@@ -270,6 +270,43 @@ namespace CommandSurvivalAdventure.World
                 return FindGameObjects(name, position).First();
             return null;
         }
+        // Sends one message to one person and one to anyone else in the specified position
+        public void SendMessageToPosition(string message, string playerName, string messageToEveryoneElse, Position position)
+        {
+            // Create a message and send to player
+            Support.Networking.RPCs.RPCSay messageRPC = new Support.Networking.RPCs.RPCSay();
+            messageRPC.arguments.Add(message);
+            // Send message to person
+            attachedApplication.server.SendRPC(messageRPC, playerName);
+            // Create a message entailing our action and send it to nearby players
+            Support.Networking.RPCs.RPCSay messageToEveryoneElseRPC = new Support.Networking.RPCs.RPCSay();
+            messageToEveryoneElseRPC.arguments.Add(messageToEveryoneElse);
+
+            // Get the nearby players to notify them our action
+            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+            {
+                // If this player is in our chunk
+                if (playerEntry.Value.controlledGameObject.position == position && playerEntry.Key != playerName)
+                    // Send an informational RPC to them letting them know
+                    attachedApplication.server.SendRPC(messageToEveryoneElseRPC, playerEntry.Key);
+            }
+        }
+        // Sends one message to every at position
+        public void SendMessageToPosition(string message, Position position)
+        {
+            // Create a message entailing our action and send it to nearby players
+            Support.Networking.RPCs.RPCSay messageToEveryoneRPC = new Support.Networking.RPCs.RPCSay();
+            messageToEveryoneRPC.arguments.Add(message);
+
+            // Get the nearby players to notify them our action
+            foreach (KeyValuePair<string, Core.Player> playerEntry in attachedApplication.server.world.players)
+            {
+                // If this player is in our chunk
+                if (playerEntry.Value.controlledGameObject.position == position)
+                    // Send an informational RPC to them letting them know
+                    attachedApplication.server.SendRPC(messageToEveryoneRPC, playerEntry.Key);
+            }
+        }
         #endregion
     }
 }
